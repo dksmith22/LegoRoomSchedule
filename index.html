@@ -12,9 +12,9 @@
       --ink: #1c232b;
       --muted: #6b7785;
       --line: #e6e9ef;
-      --bar: #1f4e79;      /* dark blue bar */
-      --bar-ink: #ffffff;  /* bar text */
-      --accent: #0b6b2a;   /* green accent */
+      --bar: #1f4e79;
+      --bar-ink: #ffffff;
+      --accent: #0b6b2a;
     }
 
     * { box-sizing: border-box; }
@@ -26,7 +26,6 @@
       color: var(--ink);
     }
 
-    /* ===== top header ===== */
     .top{
       height: 110px;
       background: var(--panel);
@@ -76,7 +75,6 @@
       white-space: nowrap;
     }
 
-    /* ===== main 3-column layout ===== */
     .wrap{
       height: calc(100vh - 110px);
       padding: 18px 18px 14px 18px;
@@ -92,7 +90,7 @@
       overflow: hidden;
       display:flex;
       flex-direction:column;
-      min-height: 0; /* allow internal scroll */
+      min-height: 0;
     }
 
     .bar{
@@ -156,9 +154,7 @@
       padding: 10px 10px;
       vertical-align: middle;
     }
-    tbody tr:nth-child(even){
-      background: #fcfdff;
-    }
+    tbody tr:nth-child(even){ background: #fcfdff; }
 
     .mono{ font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; }
     .muted{ color: var(--muted); }
@@ -193,7 +189,6 @@
 <body>
   <div class="top">
     <div class="logoBox">
-      <!-- Replace with your real TrenchSafe logo URL if you want -->
       <img class="logo" src="https://via.placeholder.com/260x80?text=TrenchSafe+Logo" alt="TrenchSafe" />
       <div class="brandText">
         <div class="name" style="color:var(--accent)">TrenchSafe</div>
@@ -208,12 +203,12 @@
         <div class="name" style="color:#1c232b">Laird Plastics</div>
         <div class="sub">One Source - The Right Way</div>
       </div>
-      <!-- Replace with your real Laird logo URL if you want -->
       <img class="logo" src="https://via.placeholder.com/260x80?text=Laird+Plastics+Logo" alt="Laird Plastics" />
     </div>
   </div>
 
   <div class="wrap">
+    <!-- TS -->
     <section class="panel">
       <div class="bar">
         <div>TS</div>
@@ -225,11 +220,12 @@
           <table>
             <thead>
               <tr>
-                <th style="width:110px">Order</th>
+                <th style="width:120px">SO #</th>
                 <th style="width:220px">Customer</th>
-                <th style="width:110px">Item</th>
-                <th>Description</th>
-                <th style="width:160px">Machine</th>
+                <th style="width:160px">Workstation</th>
+                <th style="width:140px">Station Order</th>
+                <th style="width:120px">Due Date</th>
+                <th style="width:160px">Sales Person</th>
               </tr>
             </thead>
             <tbody id="tsBody"></tbody>
@@ -242,6 +238,7 @@
       </div>
     </section>
 
+    <!-- ALL -->
     <section class="panel">
       <div class="bar">
         <div>ALL</div>
@@ -253,11 +250,12 @@
           <table>
             <thead>
               <tr>
-                <th style="width:110px">Order</th>
+                <th style="width:120px">SO #</th>
                 <th style="width:220px">Customer</th>
-                <th style="width:110px">Item</th>
-                <th>Description</th>
-                <th style="width:160px">Machine</th>
+                <th style="width:160px">Workstation</th>
+                <th style="width:140px">Station Order</th>
+                <th style="width:120px">Due Date</th>
+                <th style="width:160px">Sales Person</th>
               </tr>
             </thead>
             <tbody id="allBody"></tbody>
@@ -270,6 +268,7 @@
       </div>
     </section>
 
+    <!-- PVE -->
     <section class="panel">
       <div class="bar">
         <div>PVE</div>
@@ -281,11 +280,12 @@
           <table>
             <thead>
               <tr>
-                <th style="width:110px">Order</th>
+                <th style="width:120px">SO #</th>
                 <th style="width:220px">Customer</th>
-                <th style="width:110px">Item</th>
-                <th>Description</th>
-                <th style="width:160px">Machine</th>
+                <th style="width:160px">Workstation</th>
+                <th style="width:140px">Station Order</th>
+                <th style="width:120px">Due Date</th>
+                <th style="width:160px">Sales Person</th>
               </tr>
             </thead>
             <tbody id="pveBody"></tbody>
@@ -300,69 +300,26 @@
   </div>
 
   <script>
-    /*************************************************************
-     * ✅ YOUR JSON URL (already filled in)
-     *************************************************************/
+    // ✅ Your JSON URL
     const JSON_URL = "https://raw.githubusercontent.com/dksmith22/sharepoint-json-feed-all/refs/heads/main/sharepointdata.json";
 
-    /*************************************************************
-     * Refresh settings
-     *************************************************************/
-    const REFRESH_MS = 30_000; // 30 seconds
-    const MAX_ROWS_PER_PANEL = 40;
+    const REFRESH_MS = 30000;
+    const MAX_ROWS_PER_PANEL = 60;
 
-    /*************************************************************
-     * Flexible field mapping (so it works even if keys vary)
-     *************************************************************/
-    const FIELDS = {
-      orderNo:  ["orderNo","order","order_number","salesOrder","so","SONumber","OrderNumber","Order #","Order"],
-      customer: ["customer","customerName","soldToName","account","accountName","CustomerName","Customer","Customer Name"],
-      itemNo:   ["itemNo","item","item_number","sku","part","partNo","ItemNumber","Item #","Item"],
-      desc:     ["description","itemDescription","desc","product","ProductDescription","ItemDescription","Description"],
-      machine:  ["machine","workcenter","workCenter","workstation","assignedMachine","Machine","Workstation"],
-
-      // TrenchSafe marker possibilities
-      trench:   ["isTrenchSafe","trenchSafe","TrenchSafe","brand","division","category","source","type","line","BU","BusinessUnit"]
+    // Your JSON keys (exact)
+    const K = {
+      so: "SO Number",
+      customer: "Customer",
+      workstation: "Workstation",
+      stationOrder: "Station Order",
+      due: "Due Date",
+      sales: "Sales Person",
+      trench: "Trenchsafe",
+      complete: "Complete"
     };
 
-    function pick(obj, keys){
-      for (const k of keys){
-        if (obj && Object.prototype.hasOwnProperty.call(obj, k) && obj[k] != null && String(obj[k]).trim() !== ""){
-          return obj[k];
-        }
-      }
-      return "";
-    }
-
-    function normalize(payload){
-      if (Array.isArray(payload)) return payload;
-      if (payload && Array.isArray(payload.orders)) return payload.orders;
-      if (payload && Array.isArray(payload.data)) return payload.data;
-      if (payload && Array.isArray(payload.items)) return payload.items;
-      if (payload && Array.isArray(payload.value)) return payload.value; // common API shape
-      return [];
-    }
-
-    function isTrenchSafe(order){
-      const v = pick(order, FIELDS.trench);
-      const s = String(v || "").toLowerCase();
-      if (v === true) return true;
-      if (s.includes("trench")) return true;
-      if (s === "ts") return true;
-      return false;
-    }
-
-    function isPVE(order){
-      const cust = String(pick(order, FIELDS.customer) || "");
-      return cust.toLowerCase().includes("pve");
-    }
-
-    function fmt(val){
-      return (val == null) ? "" : String(val);
-    }
-
     function escapeHtml(str){
-      return String(str)
+      return String(str ?? "")
         .replaceAll("&","&amp;")
         .replaceAll("<","&lt;")
         .replaceAll(">","&gt;")
@@ -370,20 +327,29 @@
         .replaceAll("'","&#039;");
     }
 
-    function rowHtml(order){
-      const orderNo  = fmt(pick(order, FIELDS.orderNo));
-      const customer = fmt(pick(order, FIELDS.customer));
-      const itemNo   = fmt(pick(order, FIELDS.itemNo));
-      const desc     = fmt(pick(order, FIELDS.desc));
-      const machine  = fmt(pick(order, FIELDS.machine));
+    function isTrenchSafe(o){
+      // "Yes"/"No" (case-insensitive)
+      return String(o?.[K.trench] ?? "").trim().toLowerCase() === "yes";
+    }
 
+    function isPVE(o){
+      return String(o?.[K.customer] ?? "").toLowerCase().includes("pve");
+    }
+
+    function isOpen(o){
+      // Treat anything other than "Yes" as open
+      return String(o?.[K.complete] ?? "").trim().toLowerCase() !== "yes";
+    }
+
+    function rowHtml(o){
       return `
         <tr>
-          <td class="mono">${escapeHtml(orderNo)}</td>
-          <td>${escapeHtml(customer)}</td>
-          <td class="mono">${escapeHtml(itemNo)}</td>
-          <td>${escapeHtml(desc)}</td>
-          <td>${escapeHtml(machine)}</td>
+          <td class="mono">${escapeHtml(o?.[K.so])}</td>
+          <td>${escapeHtml(o?.[K.customer])}</td>
+          <td>${escapeHtml(o?.[K.workstation])}</td>
+          <td>${escapeHtml(o?.[K.stationOrder])}</td>
+          <td class="mono">${escapeHtml(o?.[K.due])}</td>
+          <td>${escapeHtml(o?.[K.sales])}</td>
         </tr>
       `;
     }
@@ -392,7 +358,6 @@
       const dot = document.getElementById(prefix + "Dot");
       const status = document.getElementById(prefix + "Status");
       const updated = document.getElementById(prefix + "Updated");
-
       dot.classList.toggle("bad", !ok);
       status.textContent = msg;
       updated.textContent = updatedText;
@@ -401,39 +366,34 @@
     function fillPanel(prefix, rows){
       const body = document.getElementById(prefix + "Body");
       const count = document.getElementById(prefix + "Count");
-
       const slice = rows.slice(0, MAX_ROWS_PER_PANEL);
       body.innerHTML = slice.map(rowHtml).join("");
-
       const extra = rows.length > MAX_ROWS_PER_PANEL ? ` (showing ${MAX_ROWS_PER_PANEL})` : "";
       count.textContent = `${rows.length} orders${extra}`;
     }
 
-    async function loadAndRender(){
-      const now = new Date();
-      const stamp = now.toLocaleString();
+    function sortBySO(a,b){
+      const an = parseInt(String(a?.[K.so] ?? "").replace(/\D/g,""), 10);
+      const bn = parseInt(String(b?.[K.so] ?? "").replace(/\D/g,""), 10);
+      if (!isNaN(an) && !isNaN(bn)) return an - bn;
+      return String(a?.[K.so] ?? "").localeCompare(String(b?.[K.so] ?? ""));
+    }
 
+    async function loadAndRender(){
+      const stamp = new Date().toLocaleString();
       try{
-        // Cache-bust to force refresh on signage devices
         const url = JSON_URL + (JSON_URL.includes("?") ? "&" : "?") + "cb=" + Date.now();
         const res = await fetch(url, { cache: "no-store" });
         if (!res.ok) throw new Error("HTTP " + res.status);
 
-        const payload = await res.json();
-        const orders = normalize(payload);
+        const data = await res.json();
+        const orders = Array.isArray(data) ? data : [];
 
-        const sorted = [...orders].sort((a,b)=>{
-          const ao = String(pick(a, FIELDS.orderNo) || "");
-          const bo = String(pick(b, FIELDS.orderNo) || "");
-          const an = parseInt(ao.replace(/\D/g,""), 10);
-          const bn = parseInt(bo.replace(/\D/g,""), 10);
-          if (!isNaN(an) && !isNaN(bn)) return an - bn;
-          return ao.localeCompare(bo);
-        });
+        const openOrders = orders.filter(isOpen).sort(sortBySO);
 
-        const ts  = sorted.filter(isTrenchSafe);
-        const pve = sorted.filter(isPVE);
-        const all = sorted;
+        const ts  = openOrders.filter(isTrenchSafe);
+        const pve = openOrders.filter(isPVE);
+        const all = openOrders;
 
         fillPanel("ts", ts);
         fillPanel("all", all);
@@ -442,8 +402,8 @@
         setStatus("ts",  true, "OK", stamp);
         setStatus("all", true, "OK", stamp);
         setStatus("pve", true, "OK", stamp);
-      }catch(err){
-        console.error(err);
+      }catch(e){
+        console.error(e);
         setStatus("ts",  false, "JSON ERROR", stamp);
         setStatus("all", false, "JSON ERROR", stamp);
         setStatus("pve", false, "JSON ERROR", stamp);
