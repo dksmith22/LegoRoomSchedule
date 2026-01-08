@@ -2,32 +2,456 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Flashing HELLO</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Open Orders Board</title>
+
   <style>
-    body {
-      margin: 0;
-      height: 100vh;
-      display: grid;
-      place-items: center;
-      background: #00b300; /* green background */
+    :root{
+      --bg: #f6f7f9;
+      --panel: #ffffff;
+      --ink: #1c232b;
+      --muted: #6b7785;
+      --line: #e6e9ef;
+      --bar: #1f4e79;      /* dark blue bar */
+      --bar-ink: #ffffff;  /* bar text */
+      --accent: #0b6b2a;   /* green accent */
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body{
+      margin:0;
       font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
     }
 
-    .flash {
-      font-size: 96px;
+    /* ===== top header ===== */
+    .top{
+      height: 110px;
+      background: var(--panel);
+      border-bottom: 1px solid var(--line);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding: 14px 28px;
+      gap: 20px;
+    }
+    .logoBox{
+      display:flex;
+      align-items:center;
+      gap: 12px;
+      min-width: 320px;
+    }
+    .logo{
+      height: 64px;
+      width: auto;
+      object-fit: contain;
+    }
+    .brandText{
+      display:flex;
+      flex-direction:column;
+      line-height:1.05;
+    }
+    .brandText .name{
+      font-weight: 800;
+      font-size: 22px;
+      letter-spacing: .3px;
+    }
+    .brandText .sub{
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 700;
+      letter-spacing: .2px;
+    }
+
+    .centerTitle{
+      flex:1;
+      text-align:center;
       font-weight: 900;
-      letter-spacing: 4px;
-      animation: bwFlash 0.6s steps(1, end) infinite;
+      font-size: 34px;
+      letter-spacing: 1px;
+      color: var(--bar);
+      text-transform: uppercase;
+      white-space: nowrap;
     }
 
-    @keyframes bwFlash {
-      0%, 49% { color: #000; }   /* black */
-      50%, 100% { color: #fff; } /* white */
+    /* ===== main 3-column layout ===== */
+    .wrap{
+      height: calc(100vh - 110px);
+      padding: 18px 18px 14px 18px;
+      display:grid;
+      grid-template-columns: 1fr 1.2fr 1fr;
+      gap: 18px;
+    }
+
+    .panel{
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      overflow: hidden;
+      display:flex;
+      flex-direction:column;
+      min-height: 0; /* allow internal scroll */
+    }
+
+    .bar{
+      background: var(--bar);
+      color: var(--bar-ink);
+      padding: 10px 14px;
+      font-weight: 900;
+      letter-spacing: .6px;
+      text-transform: uppercase;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+    }
+    .bar .tag{
+      font-weight: 800;
+      opacity: .95;
+      letter-spacing: .4px;
+      font-size: 12px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.25);
+      white-space: nowrap;
+    }
+
+    .content{
+      padding: 10px 10px 0 10px;
+      display:flex;
+      flex-direction:column;
+      min-height: 0;
+    }
+
+    .tableWrap{
+      border-top: 1px solid var(--line);
+      margin-top: 8px;
+      overflow:auto;
+      min-height: 0;
+      padding-bottom: 10px;
+    }
+
+    table{
+      width:100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    thead th{
+      position: sticky;
+      top: 0;
+      background: #fbfbfc;
+      z-index: 2;
+      text-align:left;
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: .3px;
+      text-transform: uppercase;
+      border-bottom: 1px solid var(--line);
+      padding: 10px 10px;
+    }
+    tbody td{
+      border-bottom: 1px solid var(--line);
+      padding: 10px 10px;
+      vertical-align: middle;
+    }
+    tbody tr:nth-child(even){
+      background: #fcfdff;
+    }
+
+    .mono{ font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; }
+    .muted{ color: var(--muted); }
+
+    .footer{
+      height: 34px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding: 6px 12px 10px 12px;
+      color: var(--muted);
+      font-size: 12px;
+      border-top: 1px solid var(--line);
+      background: #fbfbfc;
+    }
+    .statusDot{
+      width:8px;height:8px;border-radius:50%;
+      background: #28a745;
+      display:inline-block;
+      margin-right: 8px;
+    }
+    .statusDot.bad{ background:#d93025; }
+
+    @media (max-width: 1200px){
+      .wrap{ grid-template-columns: 1fr; }
+      .logoBox{ min-width: unset; }
+      .centerTitle{ font-size: 26px; }
     }
   </style>
 </head>
+
 <body>
-  <div class="flash">HELLO</div>
+  <div class="top">
+    <div class="logoBox">
+      <!-- Replace with your real TrenchSafe logo URL if you want -->
+      <img class="logo" src="https://via.placeholder.com/260x80?text=TrenchSafe+Logo" alt="TrenchSafe" />
+      <div class="brandText">
+        <div class="name" style="color:var(--accent)">TrenchSafe</div>
+        <div class="sub">BUILDING MATERIALS</div>
+      </div>
+    </div>
+
+    <div class="centerTitle">ALL</div>
+
+    <div class="logoBox" style="justify-content:flex-end">
+      <div class="brandText" style="text-align:right">
+        <div class="name" style="color:#1c232b">Laird Plastics</div>
+        <div class="sub">One Source - The Right Way</div>
+      </div>
+      <!-- Replace with your real Laird logo URL if you want -->
+      <img class="logo" src="https://via.placeholder.com/260x80?text=Laird+Plastics+Logo" alt="Laird Plastics" />
+    </div>
+  </div>
+
+  <div class="wrap">
+    <section class="panel">
+      <div class="bar">
+        <div>TS</div>
+        <div class="tag">TrenchSafe</div>
+      </div>
+      <div class="content">
+        <div class="muted" id="tsCount">Loading…</div>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:110px">Order</th>
+                <th style="width:220px">Customer</th>
+                <th style="width:110px">Item</th>
+                <th>Description</th>
+                <th style="width:160px">Machine</th>
+              </tr>
+            </thead>
+            <tbody id="tsBody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="footer">
+        <div><span class="statusDot" id="tsDot"></span><span id="tsStatus">OK</span></div>
+        <div class="mono" id="tsUpdated">—</div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="bar">
+        <div>ALL</div>
+        <div class="tag">All Open Orders</div>
+      </div>
+      <div class="content">
+        <div class="muted" id="allCount">Loading…</div>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:110px">Order</th>
+                <th style="width:220px">Customer</th>
+                <th style="width:110px">Item</th>
+                <th>Description</th>
+                <th style="width:160px">Machine</th>
+              </tr>
+            </thead>
+            <tbody id="allBody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="footer">
+        <div><span class="statusDot" id="allDot"></span><span id="allStatus">OK</span></div>
+        <div class="mono" id="allUpdated">—</div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="bar">
+        <div>PVE</div>
+        <div class="tag">Pneumatic Vacuum</div>
+      </div>
+      <div class="content">
+        <div class="muted" id="pveCount">Loading…</div>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:110px">Order</th>
+                <th style="width:220px">Customer</th>
+                <th style="width:110px">Item</th>
+                <th>Description</th>
+                <th style="width:160px">Machine</th>
+              </tr>
+            </thead>
+            <tbody id="pveBody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="footer">
+        <div><span class="statusDot" id="pveDot"></span><span id="pveStatus">OK</span></div>
+        <div class="mono" id="pveUpdated">—</div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    /*************************************************************
+     * ✅ YOUR JSON URL (already filled in)
+     *************************************************************/
+    const JSON_URL = "https://raw.githubusercontent.com/dksmith22/sharepoint-json-feed-all/refs/heads/main/sharepointdata.json";
+
+    /*************************************************************
+     * Refresh settings
+     *************************************************************/
+    const REFRESH_MS = 30_000; // 30 seconds
+    const MAX_ROWS_PER_PANEL = 40;
+
+    /*************************************************************
+     * Flexible field mapping (so it works even if keys vary)
+     *************************************************************/
+    const FIELDS = {
+      orderNo:  ["orderNo","order","order_number","salesOrder","so","SONumber","OrderNumber","Order #","Order"],
+      customer: ["customer","customerName","soldToName","account","accountName","CustomerName","Customer","Customer Name"],
+      itemNo:   ["itemNo","item","item_number","sku","part","partNo","ItemNumber","Item #","Item"],
+      desc:     ["description","itemDescription","desc","product","ProductDescription","ItemDescription","Description"],
+      machine:  ["machine","workcenter","workCenter","workstation","assignedMachine","Machine","Workstation"],
+
+      // TrenchSafe marker possibilities
+      trench:   ["isTrenchSafe","trenchSafe","TrenchSafe","brand","division","category","source","type","line","BU","BusinessUnit"]
+    };
+
+    function pick(obj, keys){
+      for (const k of keys){
+        if (obj && Object.prototype.hasOwnProperty.call(obj, k) && obj[k] != null && String(obj[k]).trim() !== ""){
+          return obj[k];
+        }
+      }
+      return "";
+    }
+
+    function normalize(payload){
+      if (Array.isArray(payload)) return payload;
+      if (payload && Array.isArray(payload.orders)) return payload.orders;
+      if (payload && Array.isArray(payload.data)) return payload.data;
+      if (payload && Array.isArray(payload.items)) return payload.items;
+      if (payload && Array.isArray(payload.value)) return payload.value; // common API shape
+      return [];
+    }
+
+    function isTrenchSafe(order){
+      const v = pick(order, FIELDS.trench);
+      const s = String(v || "").toLowerCase();
+      if (v === true) return true;
+      if (s.includes("trench")) return true;
+      if (s === "ts") return true;
+      return false;
+    }
+
+    function isPVE(order){
+      const cust = String(pick(order, FIELDS.customer) || "");
+      return cust.toLowerCase().includes("pve");
+    }
+
+    function fmt(val){
+      return (val == null) ? "" : String(val);
+    }
+
+    function escapeHtml(str){
+      return String(str)
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    function rowHtml(order){
+      const orderNo  = fmt(pick(order, FIELDS.orderNo));
+      const customer = fmt(pick(order, FIELDS.customer));
+      const itemNo   = fmt(pick(order, FIELDS.itemNo));
+      const desc     = fmt(pick(order, FIELDS.desc));
+      const machine  = fmt(pick(order, FIELDS.machine));
+
+      return `
+        <tr>
+          <td class="mono">${escapeHtml(orderNo)}</td>
+          <td>${escapeHtml(customer)}</td>
+          <td class="mono">${escapeHtml(itemNo)}</td>
+          <td>${escapeHtml(desc)}</td>
+          <td>${escapeHtml(machine)}</td>
+        </tr>
+      `;
+    }
+
+    function setStatus(prefix, ok, msg, updatedText){
+      const dot = document.getElementById(prefix + "Dot");
+      const status = document.getElementById(prefix + "Status");
+      const updated = document.getElementById(prefix + "Updated");
+
+      dot.classList.toggle("bad", !ok);
+      status.textContent = msg;
+      updated.textContent = updatedText;
+    }
+
+    function fillPanel(prefix, rows){
+      const body = document.getElementById(prefix + "Body");
+      const count = document.getElementById(prefix + "Count");
+
+      const slice = rows.slice(0, MAX_ROWS_PER_PANEL);
+      body.innerHTML = slice.map(rowHtml).join("");
+
+      const extra = rows.length > MAX_ROWS_PER_PANEL ? ` (showing ${MAX_ROWS_PER_PANEL})` : "";
+      count.textContent = `${rows.length} orders${extra}`;
+    }
+
+    async function loadAndRender(){
+      const now = new Date();
+      const stamp = now.toLocaleString();
+
+      try{
+        // Cache-bust to force refresh on signage devices
+        const url = JSON_URL + (JSON_URL.includes("?") ? "&" : "?") + "cb=" + Date.now();
+        const res = await fetch(url, { cache: "no-store" });
+        if (!res.ok) throw new Error("HTTP " + res.status);
+
+        const payload = await res.json();
+        const orders = normalize(payload);
+
+        const sorted = [...orders].sort((a,b)=>{
+          const ao = String(pick(a, FIELDS.orderNo) || "");
+          const bo = String(pick(b, FIELDS.orderNo) || "");
+          const an = parseInt(ao.replace(/\D/g,""), 10);
+          const bn = parseInt(bo.replace(/\D/g,""), 10);
+          if (!isNaN(an) && !isNaN(bn)) return an - bn;
+          return ao.localeCompare(bo);
+        });
+
+        const ts  = sorted.filter(isTrenchSafe);
+        const pve = sorted.filter(isPVE);
+        const all = sorted;
+
+        fillPanel("ts", ts);
+        fillPanel("all", all);
+        fillPanel("pve", pve);
+
+        setStatus("ts",  true, "OK", stamp);
+        setStatus("all", true, "OK", stamp);
+        setStatus("pve", true, "OK", stamp);
+      }catch(err){
+        console.error(err);
+        setStatus("ts",  false, "JSON ERROR", stamp);
+        setStatus("all", false, "JSON ERROR", stamp);
+        setStatus("pve", false, "JSON ERROR", stamp);
+      }
+    }
+
+    loadAndRender();
+    setInterval(loadAndRender, REFRESH_MS);
+  </script>
 </body>
 </html>
