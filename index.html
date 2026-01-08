@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Open Orders Board</title>
+<title>Open Production Orders</title>
 
 <style>
 :root{
@@ -13,10 +13,9 @@
   /* table sizing */
   --tbl-font:14px; --cell-py:10px; --head-font:12px;
 
-  /* logo sizes (set by JS) */
-  --logoH: 80px;
-  --logoWLeft: 360px;
-  --logoWRight: 460px;
+  /* logo sizing (set by JS) */
+  --logoH: 96px;
+  --logoW: 520px;
 }
 
 *{box-sizing:border-box}
@@ -25,33 +24,32 @@ body{
   margin:0;
   font-family:Arial,Helvetica,sans-serif;
   background:var(--bg);
-  color:var(--ink);
+  color:var(--ink)
 }
 
 /* ===== CORNER LOGOS ===== */
 .cornerWrap{
   position:fixed;
-  top:16px;
+  top:18px;
   z-index:1000;
   pointer-events:none;
   display:flex;
   align-items:center;
 }
-.corner-left{left:20px}
-.corner-right{right:20px}
+.corner-left{left:22px}
+.corner-right{right:22px}
 
 .corner-logo{
   height:var(--logoH);
   max-height:var(--logoH);
+  max-width:var(--logoW);
   width:auto;
   object-fit:contain;
 }
-.corner-left .corner-logo{ max-width:var(--logoWLeft); }
-.corner-right .corner-logo{ max-width:var(--logoWRight); }
 
 /* ===== HEADER ===== */
 .top{
-  height:120px;
+  height:130px;
   background:var(--panel);
   border-bottom:1px solid var(--line);
   display:flex;
@@ -60,7 +58,7 @@ body{
 }
 .centerTitle{
   font-weight:900;
-  font-size:36px;
+  font-size:38px;
   letter-spacing:1px;
   color:var(--bar);
   text-transform:uppercase;
@@ -68,7 +66,7 @@ body{
 
 /* ===== LAYOUT ===== */
 .wrap{
-  height:calc(100vh - 120px);
+  height:calc(100vh - 130px);
   padding:18px;
   display:grid;
   grid-template-columns:1fr 1.2fr 1fr;
@@ -129,7 +127,7 @@ tbody tr{border-left:10px solid transparent}
 
 @media (max-width:1200px){
   .wrap{grid-template-columns:1fr}
-  .centerTitle{font-size:28px}
+  .centerTitle{font-size:30px}
 }
 </style>
 </head>
@@ -200,29 +198,23 @@ tbody tr{border-left:10px solid transparent}
 
 <script>
 /* LOGO URLS */
-const LOGO_LEFT_URL  = "https://raw.githubusercontent.com/dksmith22/LegoRoomSchedule/main/TrenchSafe_logo-label.png";
-const LOGO_RIGHT_URL = "https://raw.githubusercontent.com/dksmith22/LegoRoomSchedule/main/Laird%20Logo.png";
+logoLeft.src  = "https://raw.githubusercontent.com/dksmith22/LegoRoomSchedule/main/TrenchSafe_logo-label.png";
+logoRight.src = "https://raw.githubusercontent.com/dksmith22/LegoRoomSchedule/main/Laird%20Logo.png";
 
-logoLeft.src  = LOGO_LEFT_URL;
-logoRight.src = LOGO_RIGHT_URL;
-
-/* HARD SCALE FOR TV SCREENS */
-function sizeLogos(){
+/* LOGO SCALING – VISUAL MATCH */
+function scaleLogos(){
   const is4K = window.innerWidth >= 3000;
 
   if(is4K){
-    document.documentElement.style.setProperty("--logoH","110px");
-    document.documentElement.style.setProperty("--logoWLeft","520px");
-    document.documentElement.style.setProperty("--logoWRight","640px");
+    document.documentElement.style.setProperty("--logoH","120px");
+    document.documentElement.style.setProperty("--logoW","620px");
   }else{
-    document.documentElement.style.setProperty("--logoH","88px");
-    document.documentElement.style.setProperty("--logoWLeft","380px");
-    document.documentElement.style.setProperty("--logoWRight","480px");
+    document.documentElement.style.setProperty("--logoH","96px");
+    document.documentElement.style.setProperty("--logoW","520px");
   }
 }
-
-window.addEventListener("resize", sizeLogos);
-sizeLogos();
+window.addEventListener("resize", scaleLogos);
+scaleLogos();
 
 /* ================= DATA ================= */
 const JSON_URL="https://raw.githubusercontent.com/dksmith22/sharepoint-json-feed-all/refs/heads/main/sharepointdata.json";
