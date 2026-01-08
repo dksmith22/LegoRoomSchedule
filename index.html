@@ -10,7 +10,7 @@
   --bg:#f6f7f9; --panel:#fff; --ink:#1c232b; --muted:#6b7785;
   --line:#e6e9ef; --bar:#1f4e79; --bar-ink:#fff;
 
-  /* table sizing */
+  /* table sizing (auto-fit still works) */
   --tbl-font:14px; --cell-py:10px; --head-font:12px;
 
   /* logo autoscale (set by JS) */
@@ -229,7 +229,7 @@ logoRight.src = LOGO_RIGHT_URL;
 
 /**
  * Auto-scale + visual balance:
- * - Height scales with screen height (good for 1080p vs 4K)
+ * - Height scales with screen height (1080p vs 4K)
  * - Width caps prevent crowding the title
  * - Right logo allowed slightly wider (it’s naturally wider)
  */
@@ -237,11 +237,11 @@ function fitCornerLogos(){
   const vw = window.innerWidth;
   const vh = window.innerHeight;
 
-  // Height scales with viewport height, clamped for readability
-  const logoH = Math.round(Math.min(78, Math.max(44, vh * 0.058)));
+  // Height scales with viewport height, clamped
+  const logoH = Math.round(Math.min(80, Math.max(44, vh * 0.058)));
 
-  // Width caps based on viewport width
-  const baseW = Math.min(420, Math.max(220, Math.round(vw * 0.26)));
+  // Width caps based on viewport width (keep center title breathing room)
+  const baseW  = Math.min(440, Math.max(220, Math.round(vw * 0.26)));
   const leftW  = Math.round(baseW * 0.88);
   const rightW = Math.round(baseW * 1.00);
 
@@ -290,14 +290,20 @@ function fmtDate(d){
   return `${mm}/${dd}/${yy}`;
 }
 
-/* Machine colors */
+/* Machine colors:
+   Unassigned = none
+   Saw = blue
+   Mario = green
+   Multicam = orange
+   Owen = purple
+*/
 function machineColor(ws){
   const s = String(ws || "").toUpperCase();
   if (!s || s.includes("UNASSIGNED")) return null;
-  if (s.includes("SAW")) return "#1f77b4";       // Blue
-  if (s.includes("MARIO")) return "#2ca02c";     // Green
-  if (s.includes("MULTICAM")) return "#ff7f0e";  // Orange
-  if (s.includes("OWEN")) return "#9467bd";      // Purple
+  if (s.includes("SAW")) return "#1f77b4";
+  if (s.includes("MARIO")) return "#2ca02c";
+  if (s.includes("MULTICAM")) return "#ff7f0e";
+  if (s.includes("OWEN")) return "#9467bd";
   return null;
 }
 function tint(hex){
@@ -372,7 +378,9 @@ async function load(){
 
 load();
 setInterval(load, 30000);
+
 window.addEventListener("resize", () => {
+  fitCornerLogos();
   const tsRows  = document.querySelectorAll("#tsBody tr").length;
   const allRows = document.querySelectorAll("#allBody tr").length;
   const pveRows = document.querySelectorAll("#pveBody tr").length;
