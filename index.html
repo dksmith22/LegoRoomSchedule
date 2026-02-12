@@ -214,6 +214,66 @@ tbody tr.running td{font-weight:900;}
 }
 .weatherRight strong{ color:var(--ink); }
 
+/* ===== Calendar widget (matches weather style) ===== */
+.calendarWidget{
+  flex:0 0 auto;
+  margin-top:10px;
+  border-top:1px solid var(--line);
+  background:#fbfbfc;
+  padding:12px 14px;
+  border-radius:8px;
+  border:2px solid rgba(31,78,121,0.18);
+}
+
+.calHeader{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:8px;
+}
+.calTitle{
+  font-weight:900;
+  color:var(--ink);
+  font-size:16px;
+  letter-spacing:0.3px;
+}
+.calSub{
+  font-size:12px;
+  color:var(--muted);
+  text-transform:uppercase;
+  letter-spacing:0.6px;
+}
+
+.calGrid{
+  display:grid;
+  grid-template-columns:repeat(7, 1fr);
+  gap:6px;
+}
+.calDow{
+  font-size:11px;
+  color:var(--muted);
+  text-transform:uppercase;
+  text-align:center;
+  padding-bottom:2px;
+}
+.calCell{
+  height:26px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:13px;
+  border-radius:6px;
+  color:var(--ink);
+}
+.calCell.mutedDay{
+  color:#9aa5b1;
+}
+.calCell.today{
+  font-weight:900;
+  border:2px solid rgba(31,78,121,0.55);
+  background:rgba(31,78,121,0.10);
+}
+
 @media (max-width:1200px){
   .wrap{grid-template-columns:1fr}
   .centerTitle{font-size:30px}
@@ -237,10 +297,12 @@ tbody tr.running td{font-weight:900;}
 
 <div class="wrap">
 
+  <!-- TrenchSafe -->
   <section class="panel">
     <div class="bar">TrenchSafe</div>
     <div class="content">
       <div class="muted" id="tsCount"></div>
+
       <div class="tableWrap">
         <table>
           <thead><tr>
@@ -249,9 +311,25 @@ tbody tr.running td{font-weight:900;}
           <tbody id="tsBody"></tbody>
         </table>
       </div>
+
+      <!-- Monthly Calendar -->
+      <div class="calendarWidget" id="calendarWidget">
+        <div class="calHeader">
+          <div>
+            <div class="calTitle" id="calMonth">Month YYYY</div>
+            <div class="calSub">Monthly Calendar</div>
+          </div>
+        </div>
+
+        <div class="calGrid" id="calGrid">
+          <!-- JS fills this -->
+        </div>
+      </div>
+
     </div>
   </section>
 
+  <!-- Laird Plastics -->
   <section class="panel">
     <div class="bar">Laird Plastics</div>
     <div class="content">
@@ -267,6 +345,7 @@ tbody tr.running td{font-weight:900;}
     </div>
   </section>
 
+  <!-- Pneumatic Vacuum -->
   <section class="panel">
     <div class="bar">Pneumatic Vacuum</div>
     <div class="content">
@@ -281,6 +360,7 @@ tbody tr.running td{font-weight:900;}
         </table>
       </div>
 
+      <!-- Weather Widget -->
       <div class="weatherWidget normal" id="weatherWidget">
         <div class="weatherLeft">
           <div class="weatherIcon anim" id="wIcon">⛅</div>
@@ -358,8 +438,8 @@ function dueTime(o){
 function sortOrders(arr){
   return arr.sort((a,b)=>{
     const ra=isRunning(a), rb=isRunning(b);
-    if(ra!==rb) return ra ? -1 : 1;           // Running always first
-    return dueTime(a) - dueTime(b);           // then due date ascending
+    if(ra!==rb) return ra ? -1 : 1;      // Running first
+    return dueTime(a) - dueTime(b);      // then due date
   });
 }
 
@@ -372,19 +452,83 @@ async function loadOrders(){
   const pve = sortOrders(open.filter(isPVE));
   const all = sortOrders(open.filter(o=>!isTS(o)&&!isPVE(o)));
 
-  document.getElementById("tsBody").innerHTML  = ts.map(row).join("");
-  document.getElementById("allBody").innerHTML = all.map(row).join("");
-  document.getElementById("pveBody").innerHTML = pve.map(row).join("");
+  tsBody.innerHTML=ts.map(row).join("");
+  allBody.innerHTML=all.map(row).join("");
+  pveBody.innerHTML=pve.map(row).join("");
 
-  document.getElementById("tsCount").textContent  = `${ts.length} orders`;
-  document.getElementById("allCount").textContent = `${all.length} orders`;
-  document.getElementById("pveCount").textContent = `${pve.length} orders`;
+  tsCount.textContent=`${ts.length} orders`;
+  allCount.textContent=`${all.length} orders`;
+  pveCount.textContent=`${pve.length} orders`;
 }
 loadOrders();
 setInterval(loadOrders,30000);
 
-/* ================== WEATHER WIDGET ================== */
-const FALLBACK_LAT = 33.8126;   // Austell, GA 30168
+/* ================== CALENDAR ================== */
+function buildCalendar(){
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth(); // 0-11
+  const today = now.getDate();
+
+  const monthName = now.toLocaleString(undefined, { month:"long" });
+  document.getElementById("calMonth").textContent = `${monthName} ${year}`;
+
+  const grid = document.getElementById("calGrid");
+  grid.innerHTML = "";
+
+  // DOW header (Sun-Sat)
+  const dows = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+  dows.forEach(d => {
+    const el = document.createElement("div");
+    el.className = "calDow";
+    el.textContent = d;
+    grid.appendChild(el);
+  });
+
+  const first = new Date(year, month, 1);
+  const startDow = first.getDay(); // 0=Sun
+  const daysInMonth = new Date(year, month+1, 0).getDate();
+
+  // previous month days for padding
+  const prevDays = new Date(year, month, 0).getDate();
+
+  // total cells (after DOW row). Use 6 weeks = 42 cells to keep stable size
+  const totalCells = 42;
+
+  // Fill leading blanks with previous month dates (muted)
+  for(let i=0; i<startDow; i++){
+    const dayNum = prevDays - (startDow - 1 - i);
+    const cell = document.createElement("div");
+    cell.className = "calCell mutedDay";
+    cell.textContent = dayNum;
+    grid.appendChild(cell);
+  }
+
+  // Fill current month
+  for(let d=1; d<=daysInMonth; d++){
+    const cell = document.createElement("div");
+    cell.className = "calCell" + (d===today ? " today" : "");
+    cell.textContent = d;
+    grid.appendChild(cell);
+  }
+
+  // Fill remaining with next month (muted) to reach 42
+  const cellsSoFar = startDow + daysInMonth;
+  const remaining = totalCells - cellsSoFar;
+  for(let i=1; i<=remaining; i++){
+    const cell = document.createElement("div");
+    cell.className = "calCell mutedDay";
+    cell.textContent = i;
+    grid.appendChild(cell);
+  }
+}
+buildCalendar();
+
+// Update calendar periodically (and it will fix itself after midnight)
+setInterval(buildCalendar, 60 * 60 * 1000);
+
+/* ================== WEATHER (unchanged fetch version) ================== */
+const FALLBACK_LAT = 33.8126;
 const FALLBACK_LON = -84.6344;
 const WEATHER_REFRESH_MS = 10 * 60 * 1000;
 
@@ -427,7 +571,6 @@ async function fetchWeather(lat, lon){
     + "&current=temperature_2m,weather_code"
     + "&temperature_unit=fahrenheit"
     + "&timezone=auto";
-
   const r = await fetch(url, { cache:"no-store" });
   if (!r.ok) throw new Error("Weather HTTP " + r.status);
   return r.json();
@@ -437,9 +580,9 @@ function setWidgetSeverity(level){
   w.classList.remove("normal","advisory","watch","warning");
   w.classList.add(level);
 }
-async function updateWeather(lat, lon, label){
+async function updateWeather(){
   try{
-    const data = await fetchWeather(lat, lon);
+    const data = await fetchWeather(FALLBACK_LAT, FALLBACK_LON);
     const cur = data.current || {};
     const temp = cur.temperature_2m;
     const code = cur.weather_code;
@@ -447,7 +590,7 @@ async function updateWeather(lat, lon, label){
     document.getElementById("wIcon").textContent = weatherIconFromCode(code);
     document.getElementById("wTemp").textContent = (temp ?? "--") + "°F";
     document.getElementById("wDesc").textContent = weatherDescFromCode(code);
-    document.getElementById("wLoc").textContent = label || "Austell, GA";
+    document.getElementById("wLoc").textContent = "Austell, GA";
 
     setWidgetSeverity(severityFromCode(code));
     document.getElementById("wUpdated").textContent =
@@ -460,12 +603,8 @@ async function updateWeather(lat, lon, label){
     setWidgetSeverity("normal");
   }
 }
-function startWeather(){
-  // OptiSigns often blocks geolocation, so fallback is reliable
-  updateWeather(FALLBACK_LAT, FALLBACK_LON, "Austell, GA");
-  setInterval(() => updateWeather(FALLBACK_LAT, FALLBACK_LON, "Austell, GA"), WEATHER_REFRESH_MS);
-}
-startWeather();
+updateWeather();
+setInterval(updateWeather, WEATHER_REFRESH_MS);
 </script>
 
 </body>
