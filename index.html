@@ -30,6 +30,12 @@
   --line:       #34d399;
   --unass:      #64748b;
   --over:       #f87171;
+  /* machine colors */
+  --mcam:       #f97316;   /* MULTICAM SAM — orange */
+  --saw:        #3b82f6;   /* SAW — blue */
+  --mario:      #22c55e;   /* MARIO KOMO — green */
+  --fab:        #14b8a6;   /* FAB — teal */
+  --owen:       #a855f7;   /* OWEN KOMO — purple */
   --bot-h:      38px;
   --hdr-h:      62px;
   --stats-h:    36px;
@@ -135,15 +141,15 @@ header{
 
 /* ── THREE PANELS ── */
 .left-panel{
-  width:32%;flex-shrink:0;
+  width:calc(33.333% - 0.44rem);flex-shrink:0;
   display:flex;flex-direction:column;gap:0.65rem;
 }
 .mid-panel{
-  flex:1;min-width:0;
+  width:calc(33.333% - 0.44rem);flex-shrink:0;
   display:flex;flex-direction:column;
 }
 .right-panel{
-  width:23%;flex-shrink:0;
+  width:calc(33.333% - 0.44rem);flex-shrink:0;
   display:flex;flex-direction:column;gap:0.65rem;
 }
 
@@ -222,24 +228,35 @@ thead th{
 
 tbody tr{border-bottom:1px solid var(--border2);transition:background 0.2s;}
 tbody tr:last-child{border-bottom:none;}
-tbody tr:hover{background:rgba(255,255,255,0.025);}
+tbody tr:hover{filter:brightness(1.15);}
 
-tbody tr.row-run{background:rgba(251,146,60,0.07);}
-tbody tr.row-run:hover{background:rgba(251,146,60,0.11);}
-tbody tr.row-line{background:rgba(52,211,153,0.06);}
-tbody tr.row-line:hover{background:rgba(52,211,153,0.10);}
-tbody tr.row-over{background:rgba(248,113,113,0.07);}
-
-/* left accent bar via box-shadow */
-tbody tr.row-run {box-shadow:inset 3px 0 0 var(--run);}
-tbody tr.row-line{box-shadow:inset 3px 0 0 var(--line);}
-tbody tr.row-over{box-shadow:inset 3px 0 0 var(--over);}
-
-@keyframes runpulse{
-  0%,100%{box-shadow:inset 3px 0 0 var(--run);}
-  50%{box-shadow:inset 3px 0 0 rgba(251,146,60,0.25);}
+/* ── UNASSIGNED: matches page background, no accent ── */
+tbody tr.ws-unassigned{
+  background:var(--bg);
+  box-shadow:none;
 }
-tbody tr.row-run{animation:runpulse 3s ease-in-out infinite;}
+
+/* ── MACHINE COLOR ROWS — left accent + subtle tint ── */
+tbody tr.ws-mcam  {background:rgba(249,115,22,0.07); box-shadow:inset 3px 0 0 var(--mcam);}
+tbody tr.ws-saw   {background:rgba(59,130,246,0.07);  box-shadow:inset 3px 0 0 var(--saw);}
+tbody tr.ws-mario {background:rgba(34,197,94,0.07);   box-shadow:inset 3px 0 0 var(--mario);}
+tbody tr.ws-fab   {background:rgba(20,184,166,0.07);  box-shadow:inset 3px 0 0 var(--fab);}
+tbody tr.ws-owen  {background:rgba(168,85,247,0.07);  box-shadow:inset 3px 0 0 var(--owen);}
+
+/* ── OVERDUE: red override regardless of machine ── */
+tbody tr.row-over {background:rgba(248,113,113,0.09); box-shadow:inset 3px 0 0 var(--over);}
+
+/* ── RUNNING: bold all text in row ── */
+tbody tr.is-running td { font-weight:800 !important; }
+tbody tr.is-running .td-ws { font-weight:800 !important; color:var(--text2) !important; }
+tbody tr.is-running .chip  { font-weight:800; }
+
+/* ── RUNNING pulse animation — uses machine color var set inline ── */
+@keyframes runpulse{
+  0%,100%{opacity:1;}
+  50%{opacity:0.75;}
+}
+tbody tr.is-running{ animation:runpulse 3s ease-in-out infinite; }
 
 td{
   padding:0.55rem 0.65rem;
@@ -638,12 +655,27 @@ function chip(st){
   if(st==='L2') return`<span class="chip chip-l2"><span class="chip-dot"></span>In Line 2</span>`;
   return`<span class="chip chip-un">Unassigned</span>`;
 }
-function rowCls(st,ds){
-  const diff = ds ? (new Date(ds)-new Date())/86400000 : 999;
-  if(diff<0)         return 'row-over';
-  if(st==='R')       return 'row-run';
-  if(st==='L1'||st==='L2') return 'row-line';
+// Map workstation name → CSS class
+function wsCls(ws){
+  if(!ws) return 'ws-unassigned';
+  const u = ws.trim().toUpperCase();
+  if(u.includes('MULTICAM') || u.includes('MCAM')) return 'ws-mcam';
+  if(u === 'SAW')         return 'ws-saw';
+  if(u.includes('MARIO')) return 'ws-mario';
+  if(u === 'FAB')         return 'ws-fab';
+  if(u.includes('OWEN'))  return 'ws-owen';
+  if(u === 'UNASSIGNED')  return 'ws-unassigned';
   return '';
+}
+
+function rowCls(st, ds, ws){
+  const diff = ds ? (new Date(ds)-new Date())/86400000 : 999;
+  const machine = wsCls(ws);
+  const running = st==='R' ? 'is-running' : '';
+  const overdue = diff<0   ? 'row-over'   : '';
+  // unassigned workstation → bg matches page
+  if(machine==='ws-unassigned') return `ws-unassigned ${running} ${overdue}`.trim();
+  return `${machine} ${running} ${overdue}`.trim();
 }
 function dueCls(ds){
   if(!ds) return 'due-ok';
@@ -679,11 +711,12 @@ function renderTable(tbodyId, totalId, runId, jobs){
   }
   tb.innerHTML = sorted.map(j=>{
     const st=pSt(j['Station Order']);
-    return`<tr class="${rowCls(st,j['Due Date'])}">
+    const ws=j['Workstation']||'';
+    return`<tr class="${rowCls(st,j['Due Date'],ws)}">
       <td class="td-so">${j['SO Number']||'—'}</td>
       <td class="td-cust">${(j['Customer']||'—').substring(0,17)}</td>
       <td>${chip(st)}</td>
-      <td class="td-ws">${(j['Workstation']||'—').substring(0,14)}</td>
+      <td class="td-ws">${ws.substring(0,14)||'—'}</td>
       <td class="td-due ${dueCls(j['Due Date'])}">${fmtDate(j['Due Date'])}</td>
     </tr>`;
   }).join('');
