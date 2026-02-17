@@ -1,640 +1,691 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Open Production Orders</title>
-
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Barlow+Condensed:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
 <style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+
 :root{
-  --bg:#f6f7f9; --panel:#fff; --ink:#1c232b; --muted:#6b7785;
-  --line:#e6e9ef; --bar:#1f4e79; --bar-ink:#fff;
-
-  --tbl-font:14px; --cell-py:10px; --head-font:12px;
-
-  /* Logo sizing */
-  --logoBase: 84px;    /* TrenchSafe */
-  --logoLarge: 126px;  /* Laird (1.5x) */
+  --bg:         #080c0a;
+  --surface:    #0e1512;
+  --surface2:   #131d17;
+  --surface3:   #182218;
+  --surface4:   #1d2a1e;
+  --green:      #22c55e;
+  --green2:     #16a34a;
+  --green3:     #4ade80;
+  --greenGlow:  rgba(34,197,94,0.12);
+  --greenBorder:rgba(34,197,94,0.2);
+  --blue:       #60a5fa;
+  --purple:     #c084fc;
+  --border:     rgba(255,255,255,0.07);
+  --border2:    rgba(255,255,255,0.04);
+  --text:       #e2ffe8;
+  --text2:      #a3b8a8;
+  --muted:      #5a7060;
+  --dim:        #344a38;
+  /* status */
+  --run:   #fb923c;
+  --line:  #34d399;
+  --unass: #64748b;
+  --over:  #f87171;
 }
 
-*{box-sizing:border-box}
-html,body{height:100%}
-body{
-  margin:0;
-  font-family:Arial,Helvetica,sans-serif;
-  background:var(--bg);
-  color:var(--ink)
+html,body{width:100%;height:100%;overflow:hidden;
+  background:var(--bg);color:var(--text);
+  font-family:'Inter',sans-serif;font-size:13px;
 }
 
-/* ===== HEADER (height unchanged) ===== */
-.top{
-  position:relative;
-  height:130px;
-  background:var(--panel);
-  border-bottom:1px solid var(--line);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-.centerTitle{
-  font-weight:900;
-  font-size:38px;
-  letter-spacing:1px;
-  color:var(--bar);
-  text-transform:uppercase;
-  z-index:2;
+/* ── SCANLINE TEXTURE ── */
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.08) 2px,
+    rgba(0,0,0,0.08) 4px
+  );
 }
 
-/* ===== HEADER LOGOS (centered vertically) ===== */
-.header-logo{
-  position:absolute;
-  top:50%;
-  transform:translateY(-50%);
-  pointer-events:none;
-}
-.header-logo.left{ left:24px; }
-.header-logo.right{ right:24px; }
-
-.header-logo.left img{
-  height:var(--logoBase);
-  width:auto;
-  object-fit:contain;
-}
-.header-logo.right img{
-  height:var(--logoLarge);
-  width:auto;
-  object-fit:contain;
+/* ── AMBIENT GLOW ── */
+body::after{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(ellipse 60% 40% at 20% 0%, rgba(34,197,94,0.05) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 30% at 80% 100%, rgba(96,165,250,0.04) 0%, transparent 60%);
 }
 
-/* ===== MAIN LAYOUT ===== */
-.wrap{
-  height:calc(100vh - 130px);
-  padding:18px;
-  padding-bottom:28px; /* TV/overscan safety */
-  display:grid;
-  grid-template-columns:1fr 1.2fr 1fr;
-  gap:18px;
+/* everything above bg layers */
+header,div,table{position:relative;z-index:1;}
+
+/* ── HEADER ── */
+header{
+  height:62px;flex-shrink:0;
+  background:linear-gradient(180deg,rgba(14,21,18,0.98) 0%,rgba(14,21,18,0.92) 100%);
+  border-bottom:1px solid var(--greenBorder);
+  box-shadow:0 1px 0 rgba(34,197,94,0.06), 0 4px 20px rgba(0,0,0,0.4);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 1.5rem;
+  backdrop-filter:blur(10px);
 }
-.panel{
-  background:var(--panel);
-  border:1px solid var(--line);
-  border-radius:10px;
-  display:flex;
-  flex-direction:column;
+.hdr-brand{display:flex;align-items:center;gap:0.8rem;}
+.brand-icon{
+  width:38px;height:38px;border-radius:8px;flex-shrink:0;
+  background:linear-gradient(135deg,var(--green),var(--green2));
+  box-shadow:0 0 16px rgba(34,197,94,0.3);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Barlow Condensed',sans-serif;font-size:0.9rem;font-weight:800;color:#000;
+}
+.brand-text{display:flex;flex-direction:column;line-height:1.15;}
+.brand-name{font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:800;letter-spacing:0.06em;color:var(--text);}
+.brand-sub{font-size:0.52rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;}
+
+.hdr-center{
+  position:absolute;left:50%;transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;gap:1px;
+}
+.hdr-title{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:1.45rem;font-weight:800;
+  letter-spacing:0.14em;text-transform:uppercase;color:var(--text);
+  text-shadow:0 0 30px rgba(34,197,94,0.2);
+}
+.hdr-title em{font-style:normal;color:var(--green3);}
+.hdr-subtitle{font-size:0.58rem;color:var(--muted);letter-spacing:0.15em;text-transform:uppercase;}
+
+.hdr-right{display:flex;align-items:center;gap:1.2rem;}
+.lp-brand{display:flex;align-items:center;gap:0.8rem;}
+.lp-icon{
+  width:38px;height:38px;border-radius:8px;
+  background:linear-gradient(135deg,#2563eb,#1e40af);
+  box-shadow:0 0 16px rgba(37,99,235,0.25);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Barlow Condensed',sans-serif;font-size:0.9rem;font-weight:800;color:#fff;
+}
+.lp-text{display:flex;flex-direction:column;line-height:1.15;text-align:right;}
+.lp-name{font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:800;letter-spacing:0.06em;color:var(--text);}
+.lp-sub{font-size:0.52rem;color:var(--muted);letter-spacing:0.08em;}
+.hdr-divider{width:1px;height:32px;background:var(--border);}
+.live-pill{
+  display:flex;align-items:center;gap:0.4rem;
+  background:var(--greenGlow);border:1px solid var(--greenBorder);
+  padding:0.28rem 0.75rem;border-radius:100px;
+  font-size:0.65rem;font-weight:700;letter-spacing:0.1em;
+  text-transform:uppercase;color:var(--green3);
+}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--green3);animation:livepulse 2s infinite;}
+@keyframes livepulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(74,222,128,0.4);}50%{opacity:0.5;box-shadow:0 0 0 4px rgba(74,222,128,0);}}
+
+/* ── BOTTOM CLOCK BAR ── */
+.bottom-clock{
+  position:fixed;bottom:0;left:0;right:0;z-index:50;
+  height:38px;
+  background:linear-gradient(180deg,rgba(8,12,10,0.0) 0%,rgba(8,12,10,0.95) 100%);
+  border-top:1px solid var(--greenBorder);
+  display:flex;align-items:center;justify-content:center;gap:1rem;
+  backdrop-filter:blur(8px);
+}
+.clock{
+  font-family:'JetBrains Mono',monospace;
+  font-size:1.2rem;font-weight:600;color:var(--green3);
+  letter-spacing:0.08em;line-height:1;
+  text-shadow:0 0 20px rgba(74,222,128,0.4);
+}
+.clock-sep{color:var(--dim);font-size:0.7rem;}
+.clock-date{
+  font-size:0.65rem;color:var(--muted);
+  letter-spacing:0.08em;text-transform:uppercase;font-weight:500;
+}
+
+/* ── STATS BAR ── */
+.statsbar{
+  height:36px;flex-shrink:0;
+  background:var(--surface2);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;gap:0;
+}
+.stat-item{
+  display:flex;align-items:center;gap:0.5rem;
+  padding:0 1.5rem;border-right:1px solid var(--border);
+  height:100%;
+}
+.stat-item:last-child{border-right:none;}
+.stat-val{font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:700;color:var(--text);letter-spacing:0.04em;}
+.stat-label{font-size:0.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;font-weight:600;}
+.stat-dot{width:7px;height:7px;border-radius:50%;}
+
+/* ── BODY ── */
+.body-wrap{
+  height:calc(100vh - 62px - 36px - 38px);
+  display:flex;gap:0.7rem;padding:0.7rem;
+}
+
+/* ── PANELS ── */
+.left-panel{width:calc(33% - 0.35rem);flex-shrink:0;display:flex;flex-direction:column;gap:0.7rem;}
+.mid-panel{flex:1;display:flex;flex-direction:column;}
+.right-panel{width:calc(24% - 0.35rem);flex-shrink:0;display:flex;flex-direction:column;gap:0.7rem;}
+
+/* ── COLUMN BOX ── */
+.col-box{
+  flex:1;min-height:0;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:12px;
   overflow:hidden;
-  min-height:0;
+  display:flex;flex-direction:column;
+  box-shadow:0 4px 24px rgba(0,0,0,0.3);
 }
-.bar{
-  background:var(--bar);
-  color:var(--bar-ink);
-  padding:12px 14px;
-  font-weight:900;
-  text-transform:uppercase;
-  text-align:center;
-  flex:0 0 auto;
+
+/* ── COLUMN HEADER ── */
+.col-head{
+  padding:0.65rem 1rem;
+  display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid var(--border);
+  flex-shrink:0;position:relative;overflow:hidden;
 }
-.content{
-  padding:10px;
-  display:flex;
-  flex-direction:column;
-  flex:1;
-  min-height:0;
+.col-head::before{
+  content:'';position:absolute;inset:0;opacity:0.04;
 }
-.tableWrap{
-  overflow:hidden;     /* no scrolling */
-  flex:1 1 auto;
-  border-top:1px solid var(--line);
-  margin-top:8px;
-  min-height:0;
+.ts-col .col-head::before{background:linear-gradient(90deg,var(--green),transparent);}
+.lp-col .col-head::before{background:linear-gradient(90deg,var(--blue),transparent);}
+.pv-col .col-head::before{background:linear-gradient(90deg,var(--purple),transparent);}
+.col-head::after{
+  content:'';position:absolute;bottom:0;left:0;width:40%;height:1px;
 }
-table{
-  width:100%;
-  border-collapse:collapse;
-  table-layout:fixed;
-  font-size:var(--tbl-font);
+.ts-col .col-head::after{background:linear-gradient(90deg,var(--green),transparent);}
+.lp-col .col-head::after{background:linear-gradient(90deg,var(--blue),transparent);}
+.pv-col .col-head::after{background:linear-gradient(90deg,var(--purple),transparent);}
+
+.col-title-wrap{display:flex;align-items:center;gap:0.6rem;}
+.col-accent{width:3px;height:20px;border-radius:2px;flex-shrink:0;}
+.ts-col .col-accent{background:linear-gradient(180deg,var(--green3),var(--green2));}
+.lp-col .col-accent{background:linear-gradient(180deg,#93c5fd,#3b82f6);}
+.pv-col .col-accent{background:linear-gradient(180deg,#e9d5ff,#a855f7);}
+.col-name{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:0.95rem;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;
 }
+.ts-col .col-name{color:var(--green3);}
+.lp-col .col-name{color:#93c5fd;}
+.pv-col .col-name{color:#e9d5ff;}
+
+.col-badges{display:flex;align-items:center;gap:0.4rem;}
+.cbadge{font-size:0.6rem;font-weight:700;letter-spacing:0.04em;padding:0.15rem 0.5rem;border-radius:100px;}
+.cb-total{background:var(--surface3);color:var(--text2);border:1px solid var(--border);}
+.cb-run{background:rgba(251,146,60,0.12);color:var(--run);border:1px solid rgba(251,146,60,0.3);}
+
+/* ── TABLE ── */
+.tbl-wrap{flex:1;overflow:hidden;min-height:0;}
+table{width:100%;border-collapse:collapse;table-layout:fixed;}
+
+thead tr{background:var(--surface3);}
 thead th{
-  font-size:var(--head-font);
-  color:var(--muted);
-  border-bottom:1px solid var(--line);
-  padding:8px 10px;
-  background:#fbfbfc;
-  text-transform:uppercase;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-tbody td{
-  padding:var(--cell-py) 10px;
-  border-bottom:1px solid var(--line);
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-tbody tr{border-left:10px solid transparent}
-tbody tr.running td{font-weight:900;}
-.mono{font-variant-numeric:tabular-nums}
-.muted{color:var(--muted)}
-
-/* ===== Weather widget (bottom of Pneumatic column) ===== */
-.weatherWidget{
-  flex:0 0 auto;
-  margin-top:10px;
-  border-top:1px solid var(--line);
-  background:#fbfbfc;
-  padding:12px 14px;
-  border-radius:8px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:12px;
-  min-height:104px; /* supports bigger text */
-  border:2px solid transparent;
+  padding:0.4rem 0.6rem;font-size:0.58rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:0.09em;color:var(--dim);
+  text-align:left;border-bottom:1px solid var(--border);white-space:nowrap;
 }
 
-/* severity colors */
-.weatherWidget.normal{
-  background:#fbfbfc;
-  border-color:rgba(31,78,121,0.18);
+tbody tr{border-bottom:1px solid var(--border2);transition:background 0.2s;}
+tbody tr:last-child{border-bottom:none;}
+tbody tr:hover{background:rgba(255,255,255,0.025);}
+
+/* Row states */
+tbody tr.row-run{
+  background:rgba(251,146,60,0.07);
+  box-shadow:inset 2px 0 0 var(--run);
 }
-.weatherWidget.advisory{
-  background:rgba(255, 215, 0, 0.16); /* yellow */
-  border-color:rgba(255, 215, 0, 0.55);
+tbody tr.row-run:hover{background:rgba(251,146,60,0.11);}
+tbody tr.row-line{
+  background:rgba(52,211,153,0.06);
+  box-shadow:inset 2px 0 0 var(--line);
 }
-.weatherWidget.watch{
-  background:rgba(255, 140, 0, 0.18); /* orange */
-  border-color:rgba(255, 140, 0, 0.60);
+tbody tr.row-line:hover{background:rgba(52,211,153,0.10);}
+tbody tr.row-over{
+  background:rgba(248,113,113,0.07);
+  box-shadow:inset 2px 0 0 var(--over);
 }
-.weatherWidget.warning{
-  background:rgba(220, 20, 60, 0.14); /* crimson */
-  border-color:rgba(220, 20, 60, 0.60);
+/* pulse animation for running rows */
+@keyframes runpulse{0%,100%{box-shadow:inset 2px 0 0 var(--run);}50%{box-shadow:inset 2px 0 0 rgba(251,146,60,0.3);}}
+tbody tr.row-run{animation:runpulse 3s ease-in-out infinite;}
+
+td{
+  padding:0.4rem 0.6rem;white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis;vertical-align:middle;
+}
+.td-so{
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.72rem;font-weight:600;color:var(--text);letter-spacing:0.02em;
+}
+.td-cust{font-size:0.72rem;font-weight:600;color:var(--text2);}
+.td-ws{font-size:0.65rem;color:var(--muted);font-weight:500;}
+.td-due{font-size:0.7rem;font-weight:700;text-align:right;}
+.due-ok{color:var(--muted);}
+.due-soon{color:var(--run);}
+.due-over{color:var(--over);}
+
+/* Status chips */
+.chip{display:inline-flex;align-items:center;gap:0.25rem;font-size:0.58rem;font-weight:700;letter-spacing:0.05em;padding:0.18rem 0.5rem;border-radius:100px;white-space:nowrap;}
+.chip-run  {background:rgba(251,146,60,0.14);color:var(--run);  border:1px solid rgba(251,146,60,0.3);}
+.chip-l1   {background:rgba(52,211,153,0.12);color:var(--line); border:1px solid rgba(52,211,153,0.3);}
+.chip-l2   {background:rgba(52,211,153,0.08);color:#6ee7b7;     border:1px solid rgba(52,211,153,0.2);}
+.chip-un   {background:rgba(100,116,139,0.12);color:var(--unass);border:1px solid rgba(100,116,139,0.25);}
+.chip-dot  {width:5px;height:5px;border-radius:50%;background:currentColor;}
+
+/* ── BOTTOM ROW ── */
+.bottom-strip{
+  display:flex;gap:0.7rem;
+  height:160px;flex-shrink:0;
 }
 
-.weatherLeft{
-  display:flex;
-  align-items:center;
-  gap:12px;
-  min-width:0;
+/* CALENDAR */
+.widget-cal{
+  flex:1;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:12px;padding:0.7rem 0.85rem;
+  display:flex;flex-direction:column;
+  box-shadow:0 4px 24px rgba(0,0,0,0.3);
 }
-.weatherIcon{
-  font-size:44px;
-  line-height:1;
-  display:inline-block;
-  transform-origin:center;
-}
-.weatherIcon.anim{
-  animation: weatherPulse 1.6s ease-in-out infinite;
-}
-@keyframes weatherPulse{
-  0%   { transform: scale(1); }
-  50%  { transform: scale(1.12); }
-  100% { transform: scale(1); }
-}
-.weatherMain{
-  display:flex;
-  flex-direction:column;
-  min-width:0;
-}
-.weatherTemp{
-  font-weight:900;
-  font-size:42px;
-  line-height:1.0;
-}
-.weatherDesc{
-  font-size:18px;
-  color:var(--muted);
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-  margin-top:4px;
-}
-.weatherRight{
-  text-align:right;
-  font-size:16px;
-  color:var(--muted);
-  white-space:nowrap;
-}
-.weatherRight strong{
-  color:var(--ink);
-}
+.cal-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:0.45rem;}
+.cal-month{font-family:'Barlow Condensed',sans-serif;font-size:0.9rem;font-weight:700;color:var(--text);letter-spacing:0.06em;}
+.cal-month span{color:var(--green3);}
+.cal-grid{flex:1;display:flex;flex-direction:column;gap:1px;}
+.cal-row{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;}
+.cal-dow{font-size:0.52rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--dim);text-align:center;padding:1px 0;}
+.cal-day{font-size:0.65rem;font-weight:500;text-align:center;padding:2px 0;border-radius:3px;color:var(--muted);line-height:1.6;}
+.cal-day.today{background:var(--green);color:#000;font-weight:800;box-shadow:0 0 8px rgba(34,197,94,0.5);}
+.cal-day.other{color:var(--dim);}
+.cal-day.wknd{color:#3d5040;}
 
-/* ===== Calendar widget (matches weather style) ===== */
-.calendarWidget{
-  flex:0 0 auto;
-  margin-top:10px;
-  border-top:1px solid var(--line);
-  background:#fbfbfc;
-  padding:10px 12px;
-  border-radius:8px;
-  border:2px solid rgba(31,78,121,0.18);
+/* WEATHER */
+.widget-wx{
+  width:210px;flex-shrink:0;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:12px;padding:0.85rem 1rem;
+  display:flex;flex-direction:column;justify-content:space-between;
+  box-shadow:0 4px 24px rgba(0,0,0,0.3);
 }
+.wx-row1{display:flex;align-items:center;gap:0.75rem;}
+.wx-icon-wrap{position:relative;}
+.wx-emoji{font-size:2rem;line-height:1;filter:drop-shadow(0 0 8px rgba(255,220,100,0.3));}
+.wx-main{}
+.wx-temp{font-family:'Barlow Condensed',sans-serif;font-size:2rem;font-weight:700;color:var(--text);line-height:1;}
+.wx-cond{font-size:0.7rem;color:var(--text2);font-weight:500;margin-top:1px;}
+.wx-row2{display:flex;align-items:center;gap:0.4rem;}
+.wx-loc{font-size:0.65rem;color:var(--muted);}
+.wx-row3{display:flex;gap:0.85rem;}
+.wx-stat{display:flex;flex-direction:column;gap:1px;}
+.wx-stat-val{font-size:0.72rem;font-weight:700;color:var(--text2);}
+.wx-stat-lbl{font-size:0.55rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;}
+.wx-updated{font-size:0.58rem;color:var(--dim);}
 
-/* Month/year centered */
-.calHeader{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  margin-bottom:10px;
-}
-.calTitle{
-  font-weight:900;
-  color:var(--ink);
-  font-size:18px;
-  letter-spacing:0.5px;
-  text-align:center;
-}
-
-.calGrid{
-  display:grid;
-  grid-template-columns:repeat(7, 1fr);
-  gap:5px;
-}
-.calDow{
-  font-size:10px;
-  color:var(--muted);
-  text-transform:uppercase;
-  text-align:center;
-  padding-bottom:2px;
-}
-.calCell{
-  height:22px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:12px;
-  border-radius:6px;
-  color:var(--ink);
-}
-.calCell.mutedDay{
-  color:#9aa5b1;
-}
-.calCell.today{
-  font-weight:900;
-  border:2px solid rgba(31,78,121,0.55);
-  background:rgba(31,78,121,0.10);
-}
-
-/* March 12 = most important date */
-.calCell.march12{
-  font-size:16px;
-  font-weight:900;
-  background:#1f4e79;
-  color:#fff;
-  border:3px solid #0e2d4f;
-  box-shadow:0 0 10px rgba(31,78,121,0.55);
-  transform:scale(1.08);
-}
-
-/* --- Force calendar to always be visible on TV/OptiSigns --- */
-.tsPanel .content{
-  display:flex;
-  flex-direction:column;
-  min-height:0;
-}
-.tsPanel .calendarWidget{
-  flex:0 0 220px;
-  height:220px;
-  overflow:hidden;
-}
-.tsPanel .tableWrap{
-  flex:1 1 auto;
-  min-height:0;
-}
-
-@media (max-width:1200px){
-  .wrap{grid-template-columns:1fr}
-  .centerTitle{font-size:30px}
-}
+/* ── RIGHT PANEL BOTTOM ── */
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:3px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--dim);border-radius:2px;}
 </style>
 </head>
-
 <body>
 
-<div class="top">
-  <div class="header-logo left">
-    <img src="https://raw.githubusercontent.com/dksmith22/LegoRoomSchedule/main/TrenchSafe_logo-label.png"
-         alt="TrenchSafe Logo">
+<!-- HEADER -->
+<header>
+  <div class="hdr-brand">
+    <div class="brand-icon">TS</div>
+    <div class="brand-text">
+      <span class="brand-name">TrenchSafe</span>
+      <span class="brand-sub">Building Materials</span>
+    </div>
   </div>
+  <div class="hdr-center">
+    <div class="hdr-title">Open <em>Production</em> Orders</div>
+    <div class="hdr-subtitle">Real-Time Job Board &nbsp;·&nbsp; Auto-Refresh Every 60s</div>
+  </div>
+  <div class="hdr-right">
+    <div class="live-pill"><div class="live-dot"></div>Live</div>
+    <div class="hdr-divider"></div>
+    <div class="lp-brand">
+      <div class="lp-text">
+        <span class="lp-name">Laird Plastics</span>
+        <span class="lp-sub">One Source · The Right Way</span>
+      </div>
+      <div class="lp-icon">LP</div>
+    </div>
+  </div>
+</header>
 
-  <div class="centerTitle">OPEN PRODUCTION ORDERS</div>
-
-  <div class="header-logo right">
-    <img src="https://raw.githubusercontent.com/dksmith22/LegoRoomSchedule/main/Laird%20Logo.png"
-         alt="Laird Plastics Logo">
+<!-- STATS BAR -->
+<div class="statsbar">
+  <div class="stat-item">
+    <div class="stat-dot" style="background:var(--green3);box-shadow:0 0 6px var(--green);"></div>
+    <div class="stat-val" id="stat-total">0</div>
+    <div class="stat-label">Total Orders</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-dot" style="background:var(--run);box-shadow:0 0 6px var(--run);"></div>
+    <div class="stat-val" id="stat-running">0</div>
+    <div class="stat-label">Running</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-dot" style="background:var(--line);box-shadow:0 0 6px var(--line);"></div>
+    <div class="stat-val" id="stat-inline">0</div>
+    <div class="stat-label">In Line</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-dot" style="background:var(--unass);"></div>
+    <div class="stat-val" id="stat-unass">0</div>
+    <div class="stat-label">Unassigned</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-dot" style="background:var(--over);box-shadow:0 0 6px var(--over);"></div>
+    <div class="stat-val" id="stat-over">0</div>
+    <div class="stat-label">Overdue</div>
   </div>
 </div>
 
-<div class="wrap">
+<!-- BODY -->
+<div class="body-wrap">
 
-  <!-- TrenchSafe -->
-  <section class="panel tsPanel">
-    <div class="bar">TrenchSafe</div>
-    <div class="content">
-      <div class="muted" id="tsCount"></div>
-
-      <div class="tableWrap">
-        <table>
-          <thead><tr>
-            <th>SO #</th><th>Customer</th><th>Workstation</th><th>Station</th><th>Due</th>
-          </tr></thead>
-          <tbody id="tsBody"></tbody>
-        </table>
-      </div>
-
-      <!-- Monthly Calendar -->
-      <div class="calendarWidget" id="calendarWidget">
-        <div class="calHeader">
-          <div class="calTitle" id="calMonth">Month YYYY</div>
+  <!-- LEFT: TRENCHSAFE col + calendar/weather row -->
+  <div class="left-panel">
+    <div class="col-box ts-col">
+      <div class="col-head">
+        <div class="col-title-wrap">
+          <div class="col-accent"></div>
+          <div class="col-name">TrenchSafe</div>
         </div>
-        <div class="calGrid" id="calGrid"></div>
+        <div class="col-badges">
+          <span class="cbadge cb-total" id="ts-total">0</span>
+          <span class="cbadge cb-run" id="ts-run">0 ▶</span>
+        </div>
       </div>
-
-    </div>
-  </section>
-
-  <!-- Laird Plastics -->
-  <section class="panel">
-    <div class="bar">Laird Plastics</div>
-    <div class="content">
-      <div class="muted" id="allCount"></div>
-
-      <div class="tableWrap">
+      <div class="tbl-wrap">
         <table>
           <thead><tr>
-            <th>SO #</th><th>Customer</th><th>Workstation</th><th>Station</th><th>Due</th>
+            <th style="width:21%">SO #</th>
+            <th style="width:27%">Customer</th>
+            <th style="width:20%">Station</th>
+            <th style="width:20%">Workstation</th>
+            <th style="width:12%">Due</th>
           </tr></thead>
-          <tbody id="allBody"></tbody>
+          <tbody id="ts-tbody"></tbody>
         </table>
       </div>
     </div>
-  </section>
+    <!-- BOTTOM: calendar only -->
+    <div class="bottom-strip" style="height:155px;">
+      <div class="widget-cal" id="calWidget"></div>
+    </div>
+  </div>
 
-  <!-- Pneumatic Vacuum -->
-  <section class="panel">
-    <div class="bar">Pneumatic Vacuum</div>
-    <div class="content">
-      <div class="muted" id="pveCount"></div>
-
-      <div class="tableWrap">
+  <!-- MIDDLE: LAIRD PLASTICS -->
+  <div class="mid-panel">
+    <div class="col-box lp-col">
+      <div class="col-head">
+        <div class="col-title-wrap">
+          <div class="col-accent"></div>
+          <div class="col-name">Laird Plastics</div>
+        </div>
+        <div class="col-badges">
+          <span class="cbadge cb-total" id="lp-total">0</span>
+          <span class="cbadge cb-run" id="lp-run">0 ▶</span>
+        </div>
+      </div>
+      <div class="tbl-wrap">
         <table>
           <thead><tr>
-            <th>SO #</th><th>Customer</th><th>Workstation</th><th>Station</th><th>Due</th>
+            <th style="width:18%">SO #</th>
+            <th style="width:26%">Customer</th>
+            <th style="width:20%">Station</th>
+            <th style="width:21%">Workstation</th>
+            <th style="width:15%">Due</th>
           </tr></thead>
-          <tbody id="pveBody"></tbody>
+          <tbody id="lp-tbody"></tbody>
         </table>
       </div>
+    </div>
+  </div>
 
-      <!-- Weather Widget -->
-      <div class="weatherWidget normal" id="weatherWidget">
-        <div class="weatherLeft">
-          <div class="weatherIcon anim" id="wIcon">⛅</div>
-          <div class="weatherMain">
-            <div class="weatherTemp" id="wTemp">--°F</div>
-            <div class="weatherDesc" id="wDesc">Loading weather…</div>
-          </div>
+  <!-- RIGHT: PVE + weather -->
+  <div class="right-panel">
+    <div class="col-box pv-col">
+      <div class="col-head">
+        <div class="col-title-wrap">
+          <div class="col-accent"></div>
+          <div class="col-name">Pneumatic Vacuum</div>
         </div>
-        <div class="weatherRight">
-          <div><strong id="wLoc">Austell, GA</strong></div>
-          <div id="wUpdated">—</div>
+        <div class="col-badges">
+          <span class="cbadge cb-total" id="pv-total">0</span>
+          <span class="cbadge cb-run" id="pv-run">0 ▶</span>
         </div>
       </div>
-
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr>
+            <th style="width:22%">SO #</th>
+            <th style="width:26%">Customer</th>
+            <th style="width:22%">Station</th>
+            <th style="width:18%">Wkstn</th>
+            <th style="width:12%">Due</th>
+          </tr></thead>
+          <tbody id="pv-tbody"></tbody>
+        </table>
+      </div>
     </div>
-  </section>
 
+    <!-- WEATHER bottom right -->
+    <div class="widget-wx">
+      <div class="wx-row1">
+        <div class="wx-icon-wrap"><div class="wx-emoji" id="wxIcon">🌤️</div></div>
+        <div class="wx-main">
+          <div class="wx-temp" id="wxTemp">--°F</div>
+          <div class="wx-cond" id="wxCond">Loading…</div>
+        </div>
+      </div>
+      <div class="wx-row2">
+        <div class="wx-loc">📍 <span id="wxLoc">Austell, GA</span></div>
+      </div>
+      <div class="wx-row3">
+        <div class="wx-stat">
+          <div class="wx-stat-val" id="wxHi">--°</div>
+          <div class="wx-stat-lbl">High</div>
+        </div>
+        <div class="wx-stat">
+          <div class="wx-stat-val" id="wxLo">--°</div>
+          <div class="wx-stat-lbl">Low</div>
+        </div>
+        <div class="wx-stat">
+          <div class="wx-stat-val" id="wxHum">--%</div>
+          <div class="wx-stat-lbl">Humidity</div>
+        </div>
+      </div>
+      <div class="wx-updated" id="wxUpd"></div>
+    </div>
+
+  </div>
+
+</div><!-- /body-wrap -->
+
+<!-- BOTTOM CLOCK BAR -->
+<div class="bottom-clock">
+  <div class="clock-date" id="clockDate">---</div>
+  <div class="clock-sep">·</div>
+  <div class="clock" id="clock">--:--:--</div>
+  <div class="clock-sep">·</div>
+  <div class="clock-date" id="lastUpd2"></div>
 </div>
 
 <script>
-/* ================== ORDERS DATA ================== */
-const JSON_URL="https://raw.githubusercontent.com/dksmith22/sharepoint-json-feed-all/refs/heads/main/sharepointdata.json";
+// ── CONFIG ───────────────────────────────────────────────────────────────────
+const DATA_URL  = 'https://raw.githubusercontent.com/dksmith22/sharepoint-json-feed-all/refs/heads/main/sharepointdata.json';
+const WX_LAT    = 33.8132;
+const WX_LON    = -84.6613;
+const REFRESH   = 60000;
+const WX_FREQ   = 600000;
 
-const K={
-  so:"SO Number", customer:"Customer", workstation:"Workstation",
-  station:"Station Order", due:"Due Date",
-  trench:"Trenchsafe", complete:"Complete"
-};
-
-const esc=s=>String(s??"").replace(/[&<>"']/g,m=>(
-  {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m]
-));
-
-const isOpen=o=>String(o?.[K.complete] ?? "").trim().toLowerCase()!=="yes";
-const isTS=o=>String(o?.[K.trench] ?? "").trim().toLowerCase()==="yes";
-const isPVE=o=>String(o?.[K.customer] ?? "").toLowerCase().includes("pve");
-const isRunning=o=>String(o?.[K.station] ?? "").toLowerCase().includes("running");
-
-function fmtDate(d){
-  const x=new Date(d);
-  if(isNaN(x)) return d||"";
-  return `${String(x.getMonth()+1).padStart(2,"0")}/${String(x.getDate()).padStart(2,"0")}/${String(x.getFullYear()).slice(-2)}`;
+// ── CLOCK ────────────────────────────────────────────────────────────────────
+function tickClock(){
+  const n=new Date();
+  document.getElementById('clock').textContent=
+    n.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  document.getElementById('clockDate').textContent=
+    n.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
 }
+setInterval(tickClock,1000);tickClock();
 
-/* Machine colors */
-function machineColor(ws){
-  const s=String(ws||"").toUpperCase();
-  if(!s||s.includes("UNASSIGNED"))return null;
-  if(s.includes("SAW"))return "#1f77b4";
-  if(s.includes("MARIO"))return "#2ca02c";
-  if(s.includes("MULTICAM"))return "#ff7f0e";
-  if(s.includes("OWEN"))return "#9467bd";
-  return null;
-}
-const tint=h=>h?`rgba(${parseInt(h.substr(1,2),16)},${parseInt(h.substr(3,2),16)},${parseInt(h.substr(5,2),16)},0.1)`:"transparent";
-
-function row(o){
-  const c=machineColor(o?.[K.workstation]);
-  const running=isRunning(o);
-  return `
-<tr class="${running?'running':''}" style="border-left-color:${c||"transparent"};background:${tint(c)}">
-  <td class="mono">${esc(o?.[K.so])}</td>
-  <td>${esc(o?.[K.customer])}</td>
-  <td>${esc(o?.[K.workstation])}</td>
-  <td>${esc(o?.[K.station])}</td>
-  <td class="mono">${esc(fmtDate(o?.[K.due]))}</td>
-</tr>`;
-}
-
-function dueTime(o){
-  const d = new Date(o?.[K.due]);
-  return isNaN(d) ? Number.POSITIVE_INFINITY : d.getTime();
-}
-
-function sortOrders(arr){
-  return arr.sort((a,b)=>{
-    const ra=isRunning(a), rb=isRunning(b);
-    if(ra!==rb) return ra ? -1 : 1;      // Running first
-    return dueTime(a) - dueTime(b);      // then due date
-  });
-}
-
-async function loadOrders(){
-  const r=await fetch(JSON_URL+"?cb="+Date.now(), { cache:"no-store" });
-  const d=await r.json();
-  const open=(Array.isArray(d)?d:[]).filter(isOpen);
-
-  const ts  = sortOrders(open.filter(isTS));
-  const pve = sortOrders(open.filter(isPVE));
-  const all = sortOrders(open.filter(o=>!isTS(o)&&!isPVE(o)));
-
-  document.getElementById("tsBody").innerHTML  = ts.map(row).join("");
-  document.getElementById("allBody").innerHTML = all.map(row).join("");
-  document.getElementById("pveBody").innerHTML = pve.map(row).join("");
-
-  document.getElementById("tsCount").textContent  = `${ts.length} orders`;
-  document.getElementById("allCount").textContent = `${all.length} orders`;
-  document.getElementById("pveCount").textContent = `${pve.length} orders`;
-}
-loadOrders();
-setInterval(loadOrders,30000);
-
-/* ================== CALENDAR ================== */
+// ── CALENDAR ─────────────────────────────────────────────────────────────────
 function buildCalendar(){
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = now.getMonth(); // 0-11
-  const today = now.getDate();
-
-  const monthName = now.toLocaleString(undefined, { month:"long" });
-  document.getElementById("calMonth").textContent = `${monthName} ${year}`;
-
-  const grid = document.getElementById("calGrid");
-  grid.innerHTML = "";
-
-  // DOW header
-  const dows = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
-  dows.forEach(d => {
-    const el = document.createElement("div");
-    el.className = "calDow";
-    el.textContent = d;
-    grid.appendChild(el);
-  });
-
-  const first = new Date(year, month, 1);
-  const startDow = first.getDay(); // 0=Sun
-  const daysInMonth = new Date(year, month+1, 0).getDate();
-  const prevDays = new Date(year, month, 0).getDate();
-
-  // Stable size: 42 cells
-  const totalCells = 42;
-
-  // Leading previous-month cells
-  for(let i=0; i<startDow; i++){
-    const dayNum = prevDays - (startDow - 1 - i);
-    const cell = document.createElement("div");
-    cell.className = "calCell mutedDay";
-    cell.textContent = dayNum;
-    grid.appendChild(cell);
+  const now=new Date(),today=now.getDate(),yr=now.getFullYear(),mo=now.getMonth();
+  const mn=now.toLocaleDateString('en-US',{month:'long'});
+  const first=new Date(yr,mo,1).getDay();
+  const dim=new Date(yr,mo+1,0).getDate();
+  const dprev=new Date(yr,mo,0).getDate();
+  const DAYS=['Su','Mo','Tu','We','Th','Fr','Sa'];
+  let cells=[];
+  for(let i=first-1;i>=0;i--)cells.push({d:dprev-i,cls:'other'});
+  for(let i=1;i<=dim;i++){
+    const dow=(first+i-1)%7;
+    const c=i===today?'today':(dow===0||dow===6)?'wknd':'';
+    cells.push({d:i,cls:c});
   }
-
-  // Current month
-  for(let d=1; d<=daysInMonth; d++){
-    const cell = document.createElement("div");
-    cell.className = "calCell" + (d===today ? " today" : "");
-
-    // March 12 highlight (March = 2 because 0-indexed)
-    if(month === 2 && d === 12){
-      cell.classList.add("march12");
-    }
-
-    cell.textContent = d;
-    grid.appendChild(cell);
+  while(cells.length%7)cells.push({d:cells.length-dim-first+1,cls:'other'});
+  let html=`<div class="cal-hdr"><div class="cal-month"><span>${mn}</span> ${yr}</div></div><div class="cal-grid">`;
+  html+=`<div class="cal-row">${DAYS.map(d=>`<div class="cal-dow">${d}</div>`).join('')}</div>`;
+  for(let r=0;r<cells.length;r+=7){
+    html+=`<div class="cal-row">`;
+    for(let c=r;c<r+7;c++){const x=cells[c]||{d:'',cls:''};html+=`<div class="cal-day ${x.cls}">${x.d}</div>`;}
+    html+=`</div>`;
   }
-
-  // Trailing next-month cells
-  const remaining = totalCells - (startDow + daysInMonth);
-  for(let i=1; i<=remaining; i++){
-    const cell = document.createElement("div");
-    cell.className = "calCell mutedDay";
-    cell.textContent = i;
-    grid.appendChild(cell);
-  }
+  html+=`</div>`;
+  document.getElementById('calWidget').innerHTML=html;
 }
 buildCalendar();
-setInterval(buildCalendar, 60 * 60 * 1000);
 
-/* ================== WEATHER WIDGET ==================
-   Note: If OptiSigns blocks external API calls, this may show "Weather unavailable".
-====================================================== */
-const FALLBACK_LAT = 33.8126;   // Austell, GA 30168
-const FALLBACK_LON = -84.6344;
-const WEATHER_REFRESH_MS = 10 * 60 * 1000;
-
-function weatherIconFromCode(code){
-  if (code === 0) return "☀️";
-  if (code === 1 || code === 2) return "🌤️";
-  if (code === 3) return "☁️";
-  if ([45,48].includes(code)) return "🌫️";
-  if ([51,53,55,56,57].includes(code)) return "🌦️";
-  if ([61,63,65,66,67].includes(code)) return "🌧️";
-  if ([71,73,75,77].includes(code)) return "❄️";
-  if ([80,81,82].includes(code)) return "🌧️";
-  if ([85,86].includes(code)) return "🌨️";
-  if ([95,96,99].includes(code)) return "⛈️";
-  return "⛅";
-}
-function weatherDescFromCode(code){
-  if (code === 0) return "Clear";
-  if (code === 1) return "Mostly clear";
-  if (code === 2) return "Partly cloudy";
-  if (code === 3) return "Overcast";
-  if (code === 45 || code === 48) return "Fog";
-  if ([51,53,55].includes(code)) return "Drizzle";
-  if ([61,63,65].includes(code)) return "Rain";
-  if ([71,73,75].includes(code)) return "Snow";
-  if ([80,81,82].includes(code)) return "Rain showers";
-  if ([95,96,99].includes(code)) return "Thunderstorm";
-  return "Weather";
-}
-function severityFromCode(code){
-  if ([95,96,99].includes(code)) return "warning";
-  if ([65,82,75,86,67].includes(code)) return "watch";
-  if ([45,48,51,53,55,61,63,66,71,73,77,80,81,85].includes(code)) return "advisory";
-  return "normal";
-}
-async function fetchWeather(lat, lon){
-  const url =
-    "https://api.open-meteo.com/v1/forecast"
-    + `?latitude=${encodeURIComponent(lat)}&longitude=${encodeURIComponent(lon)}`
-    + "&current=temperature_2m,weather_code"
-    + "&temperature_unit=fahrenheit"
-    + "&timezone=auto";
-
-  const r = await fetch(url, { cache:"no-store" });
-  if (!r.ok) throw new Error("Weather HTTP " + r.status);
-  return r.json();
-}
-function setWidgetSeverity(level){
-  const w = document.getElementById("weatherWidget");
-  w.classList.remove("normal","advisory","watch","warning");
-  w.classList.add(level);
-}
-async function updateWeather(){
+// ── WEATHER ──────────────────────────────────────────────────────────────────
+const wxIcons={0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',48:'🌫️',51:'🌦️',53:'🌦️',55:'🌧️',61:'🌧️',63:'🌧️',65:'🌧️',71:'🌨️',73:'🌨️',75:'❄️',80:'🌧️',81:'🌧️',82:'🌧️',95:'⛈️',96:'⛈️',99:'⛈️'};
+const wxDescs={0:'Clear sky',1:'Mostly clear',2:'Partly cloudy',3:'Overcast',45:'Foggy',48:'Icy fog',51:'Light drizzle',53:'Drizzle',55:'Heavy drizzle',61:'Light rain',63:'Rain',65:'Heavy rain',71:'Light snow',73:'Snow',75:'Heavy snow',80:'Rain showers',81:'Rain showers',82:'Heavy showers',95:'Thunderstorm',96:'Thunderstorm',99:'Thunderstorm'};
+async function fetchWx(){
   try{
-    const data = await fetchWeather(FALLBACK_LAT, FALLBACK_LON);
-    const cur = data.current || {};
-    const temp = cur.temperature_2m;
-    const code = cur.weather_code;
-
-    document.getElementById("wIcon").textContent = weatherIconFromCode(code);
-    document.getElementById("wTemp").textContent = (temp ?? "--") + "°F";
-    document.getElementById("wDesc").textContent = weatherDescFromCode(code);
-    document.getElementById("wLoc").textContent = "Austell, GA";
-
-    setWidgetSeverity(severityFromCode(code));
-
-    document.getElementById("wUpdated").textContent =
-      "Updated " + new Date().toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"});
-  }catch(e){
-    console.error(e);
-    document.getElementById("wDesc").textContent = "Weather unavailable";
-    document.getElementById("wUpdated").textContent =
-      "Updated " + new Date().toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"});
-    setWidgetSeverity("normal");
-  }
+    const u=`https://api.open-meteo.com/v1/forecast?latitude=${WX_LAT}&longitude=${WX_LON}&current=temperature_2m,relative_humidity_2m,weather_code&daily=temperature_2m_max,temperature_2m_min&temperature_unit=fahrenheit&forecast_days=1&timezone=America%2FNew_York`;
+    const d=await(await fetch(u)).json();
+    const c=d.current,dy=d.daily,code=c.weather_code;
+    document.getElementById('wxIcon').textContent=wxIcons[code]||'🌤️';
+    document.getElementById('wxTemp').textContent=Math.round(c.temperature_2m)+'°F';
+    document.getElementById('wxCond').textContent=wxDescs[code]||'Unknown';
+    document.getElementById('wxHi').textContent=Math.round(dy.temperature_2m_max[0])+'°';
+    document.getElementById('wxLo').textContent=Math.round(dy.temperature_2m_min[0])+'°';
+    document.getElementById('wxHum').textContent=c.relative_humidity_2m+'%';
+    document.getElementById('wxUpd').textContent='Updated '+new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+  }catch(e){document.getElementById('wxCond').textContent='Unavailable';}
 }
-updateWeather();
-setInterval(updateWeather, WEATHER_REFRESH_MS);
-</script>
+fetchWx();setInterval(fetchWx,WX_FREQ);
 
+// ── HELPERS ──────────────────────────────────────────────────────────────────
+function pStatus(s){
+  if(!s)return'U';const u=s.trim().toUpperCase();
+  if(u==='_RUNNING_')return'R';
+  if(u==='IN LINE 1')return'L1';
+  if(u==='IN LINE 2')return'L2';
+  return'U';
+}
+function chip(st){
+  if(st==='R') return`<span class="chip chip-run"><span class="chip-dot"></span>Running</span>`;
+  if(st==='L1')return`<span class="chip chip-l1"><span class="chip-dot"></span>In Line 1</span>`;
+  if(st==='L2')return`<span class="chip chip-l2"><span class="chip-dot"></span>In Line 2</span>`;
+  return`<span class="chip chip-un">Unassigned</span>`;
+}
+function rowCls(st,ds){
+  const diff=ds?(new Date(ds)-new Date())/86400000:999;
+  if(diff<0)return'row-over';
+  if(st==='R')return'row-run';
+  if(st==='L1'||st==='L2')return'row-line';
+  return'';
+}
+function dueCls(ds){
+  if(!ds)return'due-ok';
+  const d=(new Date(ds)-new Date())/86400000;
+  if(d<0)return'due-over';if(d<=7)return'due-soon';return'due-ok';
+}
+function fmtDate(ds){
+  if(!ds)return'—';
+  const d=new Date(ds);
+  return(d.getMonth()+1)+'/'+(d.getDate())+'/'+(String(d.getFullYear()).slice(2));
+}
+function sortJobs(arr){
+  const o={R:0,L1:1,L2:2,U:3};
+  return[...arr].sort((a,b)=>{
+    const sa=pStatus(a['Station Order']),sb=pStatus(b['Station Order']);
+    if(o[sa]!==o[sb])return o[sa]-o[sb];
+    return new Date(a['Due Date'])-new Date(b['Due Date']);
+  });
+}
+
+// ── RENDER ───────────────────────────────────────────────────────────────────
+function render(tbodyId,totalId,runId,jobs){
+  const s=sortJobs(jobs);
+  const running=s.filter(j=>pStatus(j['Station Order'])==='R').length;
+  document.getElementById(totalId).textContent=s.length+' order'+(s.length!==1?'s':'');
+  document.getElementById(runId).textContent=running+' ▶';
+  const tb=document.getElementById(tbodyId);
+  if(!s.length){
+    tb.innerHTML=`<tr><td colspan="5" style="text-align:center;color:var(--dim);padding:1.25rem;font-size:0.72rem;letter-spacing:0.06em;">NO ACTIVE JOBS</td></tr>`;
+    return;
+  }
+  tb.innerHTML=s.map(j=>{
+    const st=pStatus(j['Station Order']);
+    return`<tr class="${rowCls(st,j['Due Date'])}">
+      <td class="td-so">${j['SO Number']||'—'}</td>
+      <td class="td-cust">${(j['Customer']||'—').substring(0,17)}</td>
+      <td>${chip(st)}</td>
+      <td class="td-ws">${(j['Workstation']||'—').substring(0,14)}</td>
+      <td class="td-due ${dueCls(j['Due Date'])}">${fmtDate(j['Due Date'])}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ── SORT ─────────────────────────────────────────────────────────────────────
+function split(data){
+  const ts=[],lp=[],pv=[];
+  data.forEach(j=>{
+    const c=(j['Customer']||'').trim().toUpperCase();
+    if(c==='PVE')pv.push(j);
+    else if(j['Trenchsafe']==='Yes')ts.push(j);
+    else lp.push(j);
+  });
+  return{ts,lp,pv};
+}
+
+// ── UPDATE STATS BAR ─────────────────────────────────────────────────────────
+function updateStats(data){
+  const total=data.length;
+  const running=data.filter(j=>pStatus(j['Station Order'])==='R').length;
+  const inline=data.filter(j=>{const s=pStatus(j['Station Order']);return s==='L1'||s==='L2';}).length;
+  const unass=data.filter(j=>pStatus(j['Station Order'])==='U').length;
+  const over=data.filter(j=>{if(!j['Due Date'])return false;return(new Date(j['Due Date'])-new Date())<0;}).length;
+  document.getElementById('stat-total').textContent=total;
+  document.getElementById('stat-running').textContent=running;
+  document.getElementById('stat-inline').textContent=inline;
+  document.getElementById('stat-unass').textContent=unass;
+  document.getElementById('stat-over').textContent=over;
+}
+
+// ── LOAD ─────────────────────────────────────────────────────────────────────
+async function load(){
+  try{
+    const data=await(await fetch(DATA_URL+'?t='+Date.now())).json();
+    const{ts,lp,pv}=split(data);
+    render('ts-tbody','ts-total','ts-run',ts);
+    render('lp-tbody','lp-total','lp-run',lp);
+    render('pv-tbody','pv-total','pv-run',pv);
+    updateStats(data);
+    document.getElementById('lastUpd2').textContent=
+      'Refreshed '+new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  }catch(e){console.error(e);}
+}
+load();setInterval(load,REFRESH);
+</script>
 </body>
 </html>
