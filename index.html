@@ -220,7 +220,13 @@ header{
 
 /* ── TABLE ── */
 .tbl-wrap{flex:1;overflow:hidden;min-height:0;display:flex;flex-direction:column;}
-table{width:100%;border-collapse:collapse;table-layout:fixed;height:100%;}
+table{width:100%;border-collapse:collapse;table-layout:fixed;}
+/* Full columns stretch rows to fill space */
+.ts-col table, .lp-col table{height:100%;}
+/* Sparse columns (PVE) — rows stay natural height, no stretching */
+.pv-col table{height:auto;}
+.pv-col tbody tr{height:auto;}
+
 thead{flex-shrink:0;}
 tbody{height:100%;}
 
@@ -280,7 +286,7 @@ td{
 /* ── BOTTOM ROW ── */
 .bottom-strip{
   display:flex;gap:0.7rem;
-  height:185px;flex-shrink:0;
+  height:194px;flex-shrink:0;
 }
 
 /* CALENDAR */
@@ -302,42 +308,34 @@ td{
 .cal-day.other{color:var(--dim);}
 .cal-day.wknd{color:#3d5040;}
 
-/* WEATHER — full width of right panel */
+/* WEATHER — identical structure to calendar */
 .widget-wx{
   flex:1;
   background:var(--surface);border:1px solid var(--border);
-  border-radius:12px;padding:1rem 1.25rem;
-  display:grid;
-  grid-template-columns:auto 1fr;
-  grid-template-rows:auto auto auto;
-  column-gap:1.25rem;row-gap:0.5rem;
-  align-items:center;
+  border-radius:12px;padding:0.8rem 1rem;
+  display:flex;flex-direction:column;
   box-shadow:0 4px 24px rgba(0,0,0,0.3);
 }
-.wx-icon-big{
-  font-size:3.2rem;line-height:1;
-  grid-row:1/3;grid-column:1;
-  filter:drop-shadow(0 0 12px rgba(255,220,100,0.35));
-  align-self:center;
-}
-.wx-main{grid-row:1;grid-column:2;}
-.wx-temp{
-  font-family:'Barlow Condensed',sans-serif;
-  font-size:2.4rem;font-weight:700;color:var(--text);line-height:1;
-}
-.wx-cond{font-size:0.85rem;color:var(--text2);font-weight:500;margin-top:2px;}
-.wx-sub{grid-row:2;grid-column:2;display:flex;flex-direction:column;gap:2px;}
-.wx-loc{font-size:0.72rem;color:var(--muted);display:flex;align-items:center;gap:0.3rem;}
+.wx-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem;flex-shrink:0;}
+.wx-title{font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:700;color:var(--text);letter-spacing:0.06em;}
+.wx-title span{color:var(--green3);}
+.wx-body{flex:1;display:flex;flex-direction:column;justify-content:space-between;}
+.wx-row-main{display:flex;align-items:center;gap:0.9rem;}
+.wx-icon-big{font-size:2.8rem;line-height:1;filter:drop-shadow(0 0 10px rgba(255,220,100,0.35));flex-shrink:0;}
+.wx-temp{font-family:'Barlow Condensed',sans-serif;font-size:2.6rem;font-weight:700;color:var(--text);line-height:1;}
+.wx-cond{font-size:0.8rem;color:var(--text2);font-weight:500;margin-top:3px;}
+.wx-row-meta{display:flex;align-items:center;justify-content:space-between;}
+.wx-loc{font-size:0.7rem;color:var(--muted);}
 .wx-updated{font-size:0.62rem;color:var(--dim);}
-.wx-stats{
-  grid-row:3;grid-column:1/3;
-  display:flex;gap:1.5rem;
-  padding-top:0.5rem;
+.wx-row-stats{
+  display:flex;gap:0;
   border-top:1px solid var(--border);
+  padding-top:0.5rem;
 }
-.wx-stat{display:flex;flex-direction:column;gap:1px;}
-.wx-stat-val{font-size:0.85rem;font-weight:700;color:var(--text2);}
-.wx-stat-lbl{font-size:0.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;}
+.wx-stat{flex:1;display:flex;flex-direction:column;gap:2px;align-items:center;}
+.wx-stat+.wx-stat{border-left:1px solid var(--border);}
+.wx-stat-val{font-size:0.88rem;font-weight:700;color:var(--text2);}
+.wx-stat-lbl{font-size:0.58rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;}
 
 /* ── RIGHT PANEL BOTTOM ── */
 /* ── SCROLLBAR ── */
@@ -433,7 +431,7 @@ td{
       </div>
     </div>
     <!-- BOTTOM: calendar only -->
-    <div class="bottom-strip" style="height:155px;">
+    <div class="bottom-strip" style="height:194px;">
       <div class="widget-cal" id="calWidget"></div>
     </div>
   </div>
@@ -493,29 +491,36 @@ td{
       </div>
     </div>
 
-    <!-- WEATHER bottom right — full width -->
+    <!-- WEATHER bottom right — matches calendar structure -->
     <div class="widget-wx">
-      <div class="wx-icon-big" id="wxIcon">🌤️</div>
-      <div class="wx-main">
-        <div class="wx-temp" id="wxTemp">--°F</div>
-        <div class="wx-cond" id="wxCond">Loading…</div>
-      </div>
-      <div class="wx-sub">
-        <div class="wx-loc">📍 <span id="wxLoc">Austell, GA</span></div>
+      <div class="wx-hdr">
+        <div class="wx-title">📍 <span>Austell, GA</span></div>
         <div class="wx-updated" id="wxUpd"></div>
       </div>
-      <div class="wx-stats">
-        <div class="wx-stat">
-          <div class="wx-stat-val" id="wxHi">--°</div>
-          <div class="wx-stat-lbl">High</div>
+      <div class="wx-body">
+        <div class="wx-row-main">
+          <div class="wx-icon-big" id="wxIcon">🌤️</div>
+          <div>
+            <div class="wx-temp" id="wxTemp">--°F</div>
+            <div class="wx-cond" id="wxCond">Loading…</div>
+          </div>
         </div>
-        <div class="wx-stat">
-          <div class="wx-stat-val" id="wxLo">--°</div>
-          <div class="wx-stat-lbl">Low</div>
+        <div class="wx-row-meta">
+          <div class="wx-loc" id="wxLoc"></div>
         </div>
-        <div class="wx-stat">
-          <div class="wx-stat-val" id="wxHum">--%</div>
-          <div class="wx-stat-lbl">Humidity</div>
+        <div class="wx-row-stats">
+          <div class="wx-stat">
+            <div class="wx-stat-val" id="wxHi">--°</div>
+            <div class="wx-stat-lbl">High</div>
+          </div>
+          <div class="wx-stat">
+            <div class="wx-stat-val" id="wxLo">--°</div>
+            <div class="wx-stat-lbl">Low</div>
+          </div>
+          <div class="wx-stat">
+            <div class="wx-stat-val" id="wxHum">--%</div>
+            <div class="wx-stat-lbl">Humidity</div>
+          </div>
         </div>
       </div>
     </div>
