@@ -246,17 +246,50 @@ tbody tr.ws-owen  {background:rgba(168,85,247,0.07);  box-shadow:inset 3px 0 0 v
 /* ── OVERDUE: red override regardless of machine ── */
 tbody tr.row-over {background:rgba(248,113,113,0.09); box-shadow:inset 3px 0 0 var(--over);}
 
-/* ── RUNNING: bold all text in row ── */
+/* ── RUNNING: brighter background, bold text, glowing pulsing border ── */
+tbody tr.is-running {
+  filter:brightness(2.2);
+}
 tbody tr.is-running td { font-weight:800 !important; }
 tbody tr.is-running .td-ws { font-weight:800 !important; color:var(--text2) !important; }
 tbody tr.is-running .chip  { font-weight:800; }
 
-/* ── RUNNING pulse animation — uses machine color var set inline ── */
-@keyframes runpulse{
-  0%,100%{opacity:1;}
-  50%{opacity:0.75;}
+/* glow + pulse on the left border for running rows */
+@keyframes glowpulse-mcam  { 0%,100%{box-shadow:inset 4px 0 0 var(--mcam), 0 0 12px rgba(249,115,22,0.35);}  50%{box-shadow:inset 4px 0 0 var(--mcam), 0 0 28px rgba(249,115,22,0.7);} }
+@keyframes glowpulse-saw   { 0%,100%{box-shadow:inset 4px 0 0 var(--saw),  0 0 12px rgba(59,130,246,0.35);}   50%{box-shadow:inset 4px 0 0 var(--saw),  0 0 28px rgba(59,130,246,0.7);} }
+@keyframes glowpulse-mario { 0%,100%{box-shadow:inset 4px 0 0 var(--mario),0 0 12px rgba(34,197,94,0.35);}    50%{box-shadow:inset 4px 0 0 var(--mario),0 0 28px rgba(34,197,94,0.7);} }
+@keyframes glowpulse-fab   { 0%,100%{box-shadow:inset 4px 0 0 var(--fab),  0 0 12px rgba(20,184,166,0.35);}   50%{box-shadow:inset 4px 0 0 var(--fab),  0 0 28px rgba(20,184,166,0.7);} }
+@keyframes glowpulse-owen  { 0%,100%{box-shadow:inset 4px 0 0 var(--owen), 0 0 12px rgba(168,85,247,0.35);}   50%{box-shadow:inset 4px 0 0 var(--owen), 0 0 28px rgba(168,85,247,0.7);} }
+@keyframes glowpulse-def   { 0%,100%{box-shadow:inset 4px 0 0 var(--green3),0 0 12px rgba(74,222,128,0.35);} 50%{box-shadow:inset 4px 0 0 var(--green3),0 0 28px rgba(74,222,128,0.7);} }
+
+tbody tr.is-running.ws-mcam  { animation:glowpulse-mcam  2s ease-in-out infinite; }
+tbody tr.is-running.ws-saw   { animation:glowpulse-saw   2s ease-in-out infinite; }
+tbody tr.is-running.ws-mario { animation:glowpulse-mario 2s ease-in-out infinite; }
+tbody tr.is-running.ws-fab   { animation:glowpulse-fab   2s ease-in-out infinite; }
+tbody tr.is-running.ws-owen  { animation:glowpulse-owen  2s ease-in-out infinite; }
+tbody tr.is-running.ws-unassigned { animation:glowpulse-def 2s ease-in-out infinite; }
+
+/* ── SECTION DIVIDER between running and rest ── */
+tr.section-divider td{
+  padding:0.3rem 0.65rem;
+  font-size:0.6rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;
+  color:var(--dim);background:var(--surface3);
+  border-top:1px solid var(--border);border-bottom:1px solid var(--border);
 }
-tbody tr.is-running{ animation:runpulse 3s ease-in-out infinite; }
+
+/* ── PLAY ICON cell ── */
+.td-play{
+  width:22px;padding:0 0 0 0.5rem !important;
+  color:var(--green3);font-size:0.6rem;
+}
+.play-icon{
+  display:inline-block;
+  animation:playbeat 1.2s ease-in-out infinite;
+}
+@keyframes playbeat{
+  0%,100%{transform:scale(1);opacity:1;}
+  50%{transform:scale(1.4);opacity:0.6;}
+}
 
 td{
   padding:0.55rem 0.65rem;
@@ -441,11 +474,12 @@ td{
       <div class="tbl-wrap">
         <table>
           <thead><tr>
-            <th style="width:21%">SO #</th>
-            <th style="width:27%">Customer</th>
-            <th style="width:21%">Station</th>
-            <th style="width:19%">Workstation</th>
-            <th style="width:12%">Due</th>
+            <th style="width:3%"></th>
+            <th style="width:20%">SO #</th>
+            <th style="width:26%">Customer</th>
+            <th style="width:20%">Station</th>
+            <th style="width:18%">Workstation</th>
+            <th style="width:13%">Due</th>
           </tr></thead>
           <tbody id="ts-tbody"></tbody>
         </table>
@@ -480,10 +514,11 @@ td{
       <div class="tbl-wrap">
         <table>
           <thead><tr>
-            <th style="width:18%">SO #</th>
-            <th style="width:27%">Customer</th>
+            <th style="width:3%"></th>
+            <th style="width:17%">SO #</th>
+            <th style="width:26%">Customer</th>
             <th style="width:20%">Station</th>
-            <th style="width:21%">Workstation</th>
+            <th style="width:20%">Workstation</th>
             <th style="width:14%">Due</th>
           </tr></thead>
           <tbody id="lp-tbody"></tbody>
@@ -505,12 +540,12 @@ td{
           <span class="cbadge cb-run"   id="pv-run">0 ▶</span>
         </div>
       </div>
-      <!-- tbl-wrap scrolls; table is auto-height so rows stay compact -->
       <div class="tbl-wrap" style="overflow-y:auto;">
         <table style="height:auto;">
           <thead><tr>
-            <th style="width:22%">SO #</th>
-            <th style="width:26%">Customer</th>
+            <th style="width:3%"></th>
+            <th style="width:20%">SO #</th>
+            <th style="width:25%">Customer</th>
             <th style="width:22%">Station</th>
             <th style="width:18%">Wkstn</th>
             <th style="width:12%">Due</th>
@@ -699,27 +734,47 @@ function sortJobs(arr){
 }
 
 // ── RENDER TABLE ─────────────────────────────────────────────────────────────
+function buildRow(j){
+  const st = pSt(j['Station Order']);
+  const ws = j['Workstation']||'';
+  const isRun = st==='R';
+  const playCell = isRun
+    ? `<td class="td-play"><span class="play-icon">▶</span></td>`
+    : `<td class="td-play"></td>`;
+  return`<tr class="${rowCls(st,j['Due Date'],ws)}">
+    ${playCell}
+    <td class="td-so">${j['SO Number']||'—'}</td>
+    <td class="td-cust">${(j['Customer']||'—').substring(0,17)}</td>
+    <td>${chip(st)}</td>
+    <td class="td-ws">${ws.substring(0,14)||'—'}</td>
+    <td class="td-due ${dueCls(j['Due Date'])}">${fmtDate(j['Due Date'])}</td>
+  </tr>`;
+}
+
 function renderTable(tbodyId, totalId, runId, jobs){
   const sorted  = sortJobs(jobs);
-  const running = sorted.filter(j=>pSt(j['Station Order'])==='R').length;
+  const running = sorted.filter(j=>pSt(j['Station Order'])==='R');
+  const rest    = sorted.filter(j=>pSt(j['Station Order'])!=='R');
   document.getElementById(totalId).textContent = sorted.length+' order'+(sorted.length!==1?'s':'');
-  document.getElementById(runId).textContent   = running+' ▶';
+  document.getElementById(runId).textContent   = running.length+' ▶';
   const tb = document.getElementById(tbodyId);
   if(!sorted.length){
-    tb.innerHTML=`<tr><td colspan="5" style="text-align:center;color:var(--dim);padding:1.5rem;font-size:0.75rem;letter-spacing:0.08em;">NO ACTIVE JOBS</td></tr>`;
+    tb.innerHTML=`<tr><td colspan="6" style="text-align:center;color:var(--dim);padding:1.5rem;font-size:0.75rem;letter-spacing:0.08em;">NO ACTIVE JOBS</td></tr>`;
     return;
   }
-  tb.innerHTML = sorted.map(j=>{
-    const st=pSt(j['Station Order']);
-    const ws=j['Workstation']||'';
-    return`<tr class="${rowCls(st,j['Due Date'],ws)}">
-      <td class="td-so">${j['SO Number']||'—'}</td>
-      <td class="td-cust">${(j['Customer']||'—').substring(0,17)}</td>
-      <td>${chip(st)}</td>
-      <td class="td-ws">${ws.substring(0,14)||'—'}</td>
-      <td class="td-due ${dueCls(j['Due Date'])}">${fmtDate(j['Due Date'])}</td>
-    </tr>`;
-  }).join('');
+  let html = '';
+  // ── RUNNING SECTION ──
+  if(running.length){
+    html += `<tr class="section-divider"><td colspan="6">▶ &nbsp;Now Running — ${running.length} job${running.length!==1?'s':''}</td></tr>`;
+    html += running.map(buildRow).join('');
+  }
+  // ── DIVIDER between sections ──
+  if(running.length && rest.length){
+    html += `<tr class="section-divider"><td colspan="6">Queue — ${rest.length} job${rest.length!==1?'s':''}</td></tr>`;
+  }
+  // ── REST ──
+  html += rest.map(buildRow).join('');
+  tb.innerHTML = html;
 }
 
 // ── SORT INTO COLUMNS ─────────────────────────────────────────────────────────
