@@ -235,36 +235,37 @@ tbody tr:hover{filter:brightness(1.15);}
 
 /* ── UNASSIGNED: matches page background, no accent ── */
 tbody tr.ws-unassigned{
-  background:var(--bg);
-  box-shadow:none;
+  background:var(--bg) !important;
+  box-shadow:none !important;
 }
 
-/* ── MACHINE COLOR ROWS — left accent + subtle tint ── */
-tbody tr.ws-mcam  {background:rgba(249,115,22,0.07); box-shadow:inset 3px 0 0 var(--mcam);}
-tbody tr.ws-saw   {background:rgba(59,130,246,0.07);  box-shadow:inset 3px 0 0 var(--saw);}
-tbody tr.ws-mario {background:rgba(34,197,94,0.07);   box-shadow:inset 3px 0 0 var(--mario);}
-tbody tr.ws-fab   {background:rgba(20,184,166,0.07);  box-shadow:inset 3px 0 0 var(--fab);}
-tbody tr.ws-owen  {background:rgba(168,85,247,0.07);  box-shadow:inset 3px 0 0 var(--owen);}
+/* ── MACHINE COLOR ROWS — ALWAYS APPLY MACHINE COLOR ── */
+tbody tr.ws-mcam  {background:rgba(249,115,22,0.15) !important; box-shadow:inset 4px 0 0 var(--mcam) !important;}
+tbody tr.ws-saw   {background:rgba(59,130,246,0.15)  !important; box-shadow:inset 4px 0 0 var(--saw)  !important;}
+tbody tr.ws-mario {background:rgba(34,197,94,0.15)   !important; box-shadow:inset 4px 0 0 var(--mario)!important;}
+tbody tr.ws-fab   {background:rgba(20,184,166,0.15)  !important; box-shadow:inset 4px 0 0 var(--fab)  !important;}
+tbody tr.ws-owen  {background:rgba(168,85,247,0.15)  !important; box-shadow:inset 4px 0 0 var(--owen) !important;}
 
-/* ── OVERDUE: red override regardless of machine ── */
-tbody tr.row-over {background:rgba(248,113,113,0.09); box-shadow:inset 3px 0 0 var(--over);}
-
-/* ── RUNNING: brighter background, bold text, glowing pulsing border ── */
-tbody tr.is-running {
-  filter:brightness(2.2);
+/* ── OVERDUE: do NOT override machine color. Only flag the due cell ── */
+tbody tr.row-over td.td-due{ color:var(--over) !important; }
+tbody tr.row-over td.td-due::before{
+  content:"⚠ ";
+  color:var(--over);
+  font-size:0.8rem;
 }
+/* ── RUNNING: bold text only (NO pulse, NO brightness wash, NO color override) ── */
+tbody tr.is-running { animation:none !important; filter:none !important; }
 tbody tr.is-running td { font-weight:800 !important; }
 tbody tr.is-running .td-ws { font-weight:800 !important; color:var(--text2) !important; }
 tbody tr.is-running .chip  { font-weight:800; }
 
-/* glow + pulse on the left border for running rows — REMOVED (static only) */
-tbody tr.is-running { animation:none !important; }
-tbody tr.is-running.ws-mcam  { box-shadow:inset 4px 0 0 var(--mcam); }
-tbody tr.is-running.ws-saw   { box-shadow:inset 4px 0 0 var(--saw); }
-tbody tr.is-running.ws-mario { box-shadow:inset 4px 0 0 var(--mario); }
-tbody tr.is-running.ws-fab   { box-shadow:inset 4px 0 0 var(--fab); }
-tbody tr.is-running.ws-owen  { box-shadow:inset 4px 0 0 var(--owen); }
-tbody tr.is-running.ws-unassigned { box-shadow:inset 4px 0 0 var(--green3); }
+/* ensure unassigned stays page-colored even if running/overdue */
+tbody tr.ws-unassigned.is-running,
+tbody tr.ws-unassigned.row-over{
+  background:var(--bg) !important;
+  box-shadow:none !important;
+}
+
 /* ── SECTION DIVIDER between running and rest ── */
 tr.section-divider td{
   padding:0.3rem 0.65rem;
@@ -277,7 +278,16 @@ tr.section-divider td{
 .td-play{
   width:22px;padding:0 0 0 0.5rem !important;
   color:var(--green3);font-size:0.6rem;
+  border-left:3px solid transparent;
 }
+
+/* Reliable left color bar: draw on the first cell (table rows don't always render inset shadows consistently) */
+tbody tr.ws-mcam  td.td-play{border-left:3px solid var(--mcam);}
+tbody tr.ws-saw   td.td-play{border-left:3px solid var(--saw);}
+tbody tr.ws-mario td.td-play{border-left:3px solid var(--mario);}
+tbody tr.ws-fab   td.td-play{border-left:3px solid var(--fab);}
+tbody tr.ws-owen  td.td-play{border-left:3px solid var(--owen);}
+tbody tr.ws-unassigned td.td-play{border-left:3px solid transparent;}
 .play-icon{
   display:inline-block;
   animation:playbeat 1.2s ease-in-out infinite;
@@ -696,7 +706,7 @@ function wsCls(ws){
   if(u === 'FAB')         return 'ws-fab';
   if(u.includes('OWEN'))  return 'ws-owen';
   if(u === 'UNASSIGNED')  return 'ws-unassigned';
-  return '';
+  return 'ws-unassigned';
 }
 
 function rowCls(st, ds, ws){
