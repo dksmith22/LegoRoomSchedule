@@ -10,403 +10,175 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Barlow+Condensed:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-
 :root{
-  --bg:         #080c0a;
-  --surface:    #0e1512;
-  --surface2:   #131d17;
-  --surface3:   #182218;
-  --green:      #22c55e;
-  --green2:     #16a34a;
-  --green3:     #4ade80;
-  --greenGlow:  rgba(34,197,94,0.12);
-  --greenBorder:rgba(34,197,94,0.2);
-  --blue:       #60a5fa;
-  --purple:     #c084fc;
-  --border:     rgba(255,255,255,0.07);
-  --border2:    rgba(255,255,255,0.04);
-  --text:       #e2ffe8;
-  --text2:      #a3b8a8;
-  --muted:      #5a7060;
-  --dim:        #344a38;
-  --run:        #fb923c;
-  --line:       #34d399;
-  --unass:      #64748b;
-  --over:       #f87171;
-  /* machine colors */
-  --mcam:       #f97316;   /* MULTICAM SAM — orange */
-  --saw:        #3b82f6;   /* SAW — blue */
-  --mario:      #22c55e;   /* MARIO KOMO — green */
-  --fab:        #14b8a6;   /* FAB — teal */
-  --owen:       #a855f7;   /* OWEN KOMO — purple */
-  --bot-h:      38px;
-  --hdr-h:      62px;
-  --stats-h:    36px;
-  --bot-strip-h:194px;
+  --bg:#080c0a;--surface:#0e1512;--surface2:#131d17;--surface3:#182218;
+  --green:#22c55e;--green2:#16a34a;--green3:#4ade80;--greenGlow:rgba(34,197,94,0.12);
+  --greenBorder:rgba(34,197,94,0.2);--blue:#60a5fa;--purple:#c084fc;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.04);
+  --text:#e2ffe8;--text2:#a3b8a8;--muted:#5a7060;--dim:#344a38;
+  --run:#fb923c;--line:#34d399;--unass:#64748b;--over:#f87171;
+  --mcam:#f97316;--saw:#3b82f6;--mario:#22c55e;--fab:#14b8a6;--owen:#a855f7;
+  --bot-h:38px;--hdr-h:62px;--stats-h:36px;--bot-strip-h:194px;
 }
-
-html,body{
-  width:100%;height:100%;overflow:hidden;
-  background:var(--bg);color:var(--text);
-  font-family:'Inter',sans-serif;font-size:15px;
-}
-
-/* scanlines */
-body::before{
-  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
-  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.07) 2px,rgba(0,0,0,0.07) 4px);
-}
-/* ambient glow */
-body::after{
-  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
-  background:
-    radial-gradient(ellipse 60% 40% at 20% 0%,rgba(34,197,94,0.05) 0%,transparent 60%),
-    radial-gradient(ellipse 40% 30% at 80% 100%,rgba(96,165,250,0.04) 0%,transparent 60%);
-}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);
+  font-family:'Inter',sans-serif;font-size:15px;}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.07) 2px,rgba(0,0,0,0.07) 4px);}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(ellipse 60% 40% at 20% 0%,rgba(34,197,94,0.05) 0%,transparent 60%),
+             radial-gradient(ellipse 40% 30% at 80% 100%,rgba(96,165,250,0.04) 0%,transparent 60%);}
 header,div,table,tbody,tr,td,th{position:relative;z-index:1;}
-
-/* ── HEADER ── */
-header{
-  height:var(--hdr-h);flex-shrink:0;
-  background:linear-gradient(180deg,rgba(14,21,18,0.98),rgba(14,21,18,0.92));
-  border-bottom:1px solid var(--greenBorder);
-  box-shadow:0 4px 20px rgba(0,0,0,0.4);
-  display:flex;align-items:center;justify-content:space-between;
-  padding:0 1.5rem;
-}
+header{height:var(--hdr-h);flex-shrink:0;background:linear-gradient(180deg,rgba(14,21,18,0.98),rgba(14,21,18,0.92));
+  border-bottom:1px solid var(--greenBorder);box-shadow:0 4px 20px rgba(0,0,0,0.4);
+  display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;}
 .hdr-brand{display:flex;align-items:center;gap:0.8rem;}
-.brand-icon{
-  width:38px;height:38px;border-radius:8px;flex-shrink:0;
-  background:linear-gradient(135deg,var(--green),var(--green2));
-  box-shadow:0 0 16px rgba(34,197,94,0.3);
-  display:flex;align-items:center;justify-content:center;
-  font-family:'Barlow Condensed',sans-serif;font-size:0.9rem;font-weight:800;color:#000;
-}
+.brand-icon{width:38px;height:38px;border-radius:8px;flex-shrink:0;background:linear-gradient(135deg,var(--green),var(--green2));
+  box-shadow:0 0 16px rgba(34,197,94,0.3);display:flex;align-items:center;justify-content:center;
+  font-family:'Barlow Condensed',sans-serif;font-size:0.9rem;font-weight:800;color:#000;}
 .brand-text{display:flex;flex-direction:column;line-height:1.2;}
 .brand-name{font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:800;letter-spacing:0.06em;}
 .brand-sub{font-size:0.52rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;}
-
-.hdr-center{
-  position:absolute;left:50%;transform:translateX(-50%);
-  display:flex;flex-direction:column;align-items:center;
-}
-.hdr-title{
-  font-family:'Barlow Condensed',sans-serif;
-  font-size:1.5rem;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;
-  text-shadow:0 0 30px rgba(34,197,94,0.2);
-}
+.hdr-center{position:absolute;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;}
+.hdr-title{font-family:'Barlow Condensed',sans-serif;font-size:1.5rem;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;
+  text-shadow:0 0 30px rgba(34,197,94,0.2);}
 .hdr-title em{font-style:normal;color:var(--green3);}
 .hdr-sub{font-size:0.58rem;color:var(--muted);letter-spacing:0.15em;text-transform:uppercase;}
-
 .hdr-right{display:flex;align-items:center;gap:1.2rem;}
-.live-pill{
-  display:flex;align-items:center;gap:0.4rem;
-  background:var(--greenGlow);border:1px solid var(--greenBorder);
-  padding:0.28rem 0.75rem;border-radius:100px;
-  font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--green3);
-}
+.live-pill{display:flex;align-items:center;gap:0.4rem;background:var(--greenGlow);border:1px solid var(--greenBorder);
+  padding:0.28rem 0.75rem;border-radius:100px;font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--green3);}
 .live-dot{width:6px;height:6px;border-radius:50%;background:var(--green3);animation:livepulse 2s infinite;}
 @keyframes livepulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(74,222,128,0.4);}50%{opacity:0.5;box-shadow:0 0 0 4px rgba(74,222,128,0);}}
 .hdr-divider{width:1px;height:32px;background:var(--border);}
 .lp-brand{display:flex;align-items:center;gap:0.8rem;}
-.lp-icon{
-  width:38px;height:38px;border-radius:8px;
-  background:linear-gradient(135deg,#2563eb,#1e40af);
-  box-shadow:0 0 16px rgba(37,99,235,0.25);
-  display:flex;align-items:center;justify-content:center;
-  font-family:'Barlow Condensed',sans-serif;font-size:0.9rem;font-weight:800;color:#fff;
-}
+.lp-icon{width:38px;height:38px;border-radius:8px;background:linear-gradient(135deg,#2563eb,#1e40af);
+  box-shadow:0 0 16px rgba(37,99,235,0.25);display:flex;align-items:center;justify-content:center;
+  font-family:'Barlow Condensed',sans-serif;font-size:0.9rem;font-weight:800;color:#fff;}
 .lp-text{display:flex;flex-direction:column;line-height:1.2;text-align:right;}
 .lp-name{font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:800;letter-spacing:0.06em;}
 .lp-sub{font-size:0.52rem;color:var(--muted);letter-spacing:0.08em;}
-
-/* ── STATS BAR ── */
-.statsbar{
-  height:var(--stats-h);flex-shrink:0;
-  background:var(--surface2);border-bottom:1px solid var(--border);
-  display:flex;align-items:center;justify-content:center;
-}
-.stat-item{
-  display:flex;align-items:center;gap:0.5rem;
-  padding:0 1.5rem;border-right:1px solid var(--border);height:100%;
-}
+.statsbar{height:var(--stats-h);flex-shrink:0;background:var(--surface2);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;}
+.stat-item{display:flex;align-items:center;gap:0.5rem;padding:0 1.5rem;border-right:1px solid var(--border);height:100%;}
 .stat-item:last-child{border-right:none;}
 .stat-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
 .stat-val{font-family:'Barlow Condensed',sans-serif;font-size:1.15rem;font-weight:700;letter-spacing:0.04em;}
 .stat-lbl{font-size:0.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;font-weight:600;}
-
-/* ── BODY WRAP ── */
-/* height = 100vh minus header, statsbar, bottom clock bar */
-.body-wrap{
-  height:calc(100vh - var(--hdr-h) - var(--stats-h) - var(--bot-h));
-  display:flex;gap:0.65rem;padding:0.65rem;
-}
-
-/* ── THREE PANELS ── */
-.left-panel{
-  width:calc(33.333% - 0.44rem);flex-shrink:0;
-  display:flex;flex-direction:column;gap:0.65rem;
-}
-.mid-panel{
-  width:calc(33.333% - 0.44rem);flex-shrink:0;
-  display:flex;flex-direction:column;
-}
-.right-panel{
-  width:calc(33.333% - 0.44rem);flex-shrink:0;
-  display:flex;flex-direction:column;gap:0.65rem;
-}
-
-/* ── COLUMN BOX ── */
-/* The column data table box — flex:1 so it takes remaining height after bottom strip */
-.col-box{
-  flex:1;min-height:0;
-  background:var(--surface);
-  border:1px solid var(--border);
-  border-radius:12px;
-  overflow:hidden;
-  display:flex;flex-direction:column;
-  box-shadow:0 4px 24px rgba(0,0,0,0.3);
-}
-
-/* ── COL HEADER ── */
-.col-head{
-  padding:0.65rem 1rem;flex-shrink:0;
-  display:flex;align-items:center;justify-content:space-between;
-  border-bottom:1px solid var(--border);
-  position:relative;overflow:hidden;
-}
+.body-wrap{height:calc(100vh - var(--hdr-h) - var(--stats-h) - var(--bot-h));
+  display:flex;gap:0.65rem;padding:0.65rem;}
+.left-panel,.mid-panel,.right-panel{width:calc(33.333% - 0.44rem);flex-shrink:0;display:flex;flex-direction:column;}
+.left-panel{gap:0.65rem;}
+.right-panel{gap:0.65rem;}
+.col-box{flex:1;min-height:0;background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;
+  display:flex;flex-direction:column;box-shadow:0 4px 24px rgba(0,0,0,0.3);}
+.col-head{padding:0.65rem 1rem;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid var(--border);position:relative;overflow:hidden;}
 .col-head::before{content:'';position:absolute;inset:0;opacity:0.04;}
 .col-head::after{content:'';position:absolute;bottom:0;left:0;width:40%;height:2px;}
 .ts-col .col-head::before,.ts-col .col-head::after{background:linear-gradient(90deg,var(--green),transparent);}
 .lp-col .col-head::before,.lp-col .col-head::after{background:linear-gradient(90deg,var(--blue),transparent);}
 .pv-col .col-head::before,.pv-col .col-head::after{background:linear-gradient(90deg,var(--purple),transparent);}
-
 .col-title-wrap{display:flex;align-items:center;gap:0.6rem;}
 .col-accent{width:3px;height:22px;border-radius:2px;flex-shrink:0;}
 .ts-col .col-accent{background:linear-gradient(180deg,var(--green3),var(--green2));}
 .lp-col .col-accent{background:linear-gradient(180deg,#93c5fd,#3b82f6);}
 .pv-col .col-accent{background:linear-gradient(180deg,#e9d5ff,#a855f7);}
-
 .col-name{font-family:'Barlow Condensed',sans-serif;font-size:1.1rem;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;}
-.ts-col .col-name{color:var(--green3);}
-.lp-col .col-name{color:#93c5fd;}
-.pv-col .col-name{color:#e9d5ff;}
-
+.ts-col .col-name{color:var(--green3);} .lp-col .col-name{color:#93c5fd;} .pv-col .col-name{color:#e9d5ff;}
 .col-badges{display:flex;align-items:center;gap:0.4rem;}
 .cbadge{font-size:0.68rem;font-weight:700;letter-spacing:0.04em;padding:0.2rem 0.6rem;border-radius:100px;}
 .cb-total{background:var(--surface3);color:var(--text2);border:1px solid var(--border);}
 .cb-run{background:rgba(251,146,60,0.12);color:var(--run);border:1px solid rgba(251,146,60,0.3);}
-
-/* ── TABLE WRAPPER ── */
-/* tbl-wrap fills remaining space in col-box */
-.tbl-wrap{
-  flex:1;min-height:0;
-  overflow:hidden;
-}
-
-/* Tables in TS and LP columns stretch to fill height — rows expand evenly */
-.ts-col .tbl-wrap table,
-.lp-col .tbl-wrap table{
-  width:100%;height:100%;
-  border-collapse:collapse;table-layout:fixed;
-}
-
-/* PVE table — natural row height, rows stay compact at top */
-.pv-col .tbl-wrap{
-  overflow-y:auto;
-}
-.pv-col .tbl-wrap table{
-  width:100%;height:auto;
-  border-collapse:collapse;table-layout:fixed;
-}
-
+.tbl-wrap{flex:1;min-height:0;overflow:hidden;}
+.ts-col .tbl-wrap table,.lp-col .tbl-wrap table{width:100%;height:100%;border-collapse:collapse;table-layout:fixed;}
+.pv-col .tbl-wrap{overflow-y:auto;} .pv-col .tbl-wrap table{width:100%;height:auto;border-collapse:collapse;table-layout:fixed;}
 thead tr{background:var(--surface3);}
-thead th{
-  padding:0.5rem 0.65rem;
-  font-size:0.68rem;font-weight:700;text-transform:uppercase;
-  letter-spacing:0.09em;color:var(--dim);
-  text-align:left;border-bottom:1px solid var(--border);
-  white-space:nowrap;
-}
-
+thead th{padding:0.5rem 0.65rem;font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.09em;color:var(--dim);
+  text-align:left;border-bottom:1px solid var(--border);white-space:nowrap;}
 tbody tr{border-bottom:1px solid var(--border2);transition:background 0.2s;}
 tbody tr:last-child{border-bottom:none;}
 tbody tr:hover{filter:brightness(1.15);}
-
-/* ── UNASSIGNED: matches page background, no accent ── */
-tbody tr.ws-unassigned{
-  background:var(--bg) !important;
-  box-shadow:none !important;
-}
-
-/* ── MACHINE COLOR ROWS — ALWAYS APPLY MACHINE COLOR ── */
-tbody tr.ws-mcam  {background:rgba(249,115,22,0.15) !important; box-shadow:inset 4px 0 0 var(--mcam) !important;}
-tbody tr.ws-saw   {background:rgba(59,130,246,0.15)  !important; box-shadow:inset 4px 0 0 var(--saw)  !important;}
-tbody tr.ws-mario {background:rgba(34,197,94,0.15)   !important; box-shadow:inset 4px 0 0 var(--mario)!important;}
-tbody tr.ws-fab   {background:rgba(20,184,166,0.15)  !important; box-shadow:inset 4px 0 0 var(--fab)  !important;}
-tbody tr.ws-owen  {background:rgba(168,85,247,0.15)  !important; box-shadow:inset 4px 0 0 var(--owen) !important;}
-
-/* ── OVERDUE: do NOT override machine color. Only flag the due cell ── */
-tbody tr.row-over td.td-due{ color:var(--over) !important; }
-tbody tr.row-over td.td-due::before{
-  content:"⚠ ";
-  color:var(--over);
-  font-size:0.8rem;
-}
-/* ── RUNNING: bold text only (NO pulse, NO brightness wash, NO color override) ── */
-tbody tr.is-running { animation:none !important; filter:none !important; }
-tbody tr.is-running td { font-weight:800 !important; }
-tbody tr.is-running .td-ws { font-weight:800 !important; color:var(--text2) !important; }
-tbody tr.is-running .chip  { font-weight:800; }
-
-/* ensure unassigned stays page-colored even if running/overdue */
-tbody tr.ws-unassigned.is-running,
-tbody tr.ws-unassigned.row-over{
-  background:var(--bg) !important;
-  box-shadow:none !important;
-}
-
-/* ── SECTION DIVIDER between running and rest ── */
-tr.section-divider td{
-  padding:0.3rem 0.65rem;
-  font-size:0.6rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;
-  color:var(--dim);background:var(--surface3);
-  border-top:1px solid var(--border);border-bottom:1px solid var(--border);
-}
-
-/* ── PLAY ICON cell ── */
-.td-play{
-  width:22px;padding:0 0 0 0.5rem !important;
-  color:var(--green3);font-size:0.6rem;
-  border-left:3px solid transparent;
-}
-
-/* Reliable left color bar: draw on the first cell (table rows don't always render inset shadows consistently) */
-tbody tr.ws-mcam  td.td-play{border-left:3px solid var(--mcam);}
-tbody tr.ws-saw   td.td-play{border-left:3px solid var(--saw);}
-tbody tr.ws-mario td.td-play{border-left:3px solid var(--mario);}
-tbody tr.ws-fab   td.td-play{border-left:3px solid var(--fab);}
-tbody tr.ws-owen  td.td-play{border-left:3px solid var(--owen);}
-tbody tr.ws-unassigned td.td-play{border-left:3px solid transparent;}
-.play-icon{
-  display:inline-block;
-  animation:playbeat 1.2s ease-in-out infinite;
-}
-@keyframes playbeat{
-  0%,100%{transform:scale(1);opacity:1;}
-  50%{transform:scale(1.4);opacity:0.6;}
-}
-
-td{
-  padding:0.55rem 0.65rem;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-  vertical-align:middle;
-}
+tbody tr.ws-unassigned{background:var(--bg);box-shadow:none;}
+tbody tr.ws-mcam{background:rgba(249,115,22,0.07);box-shadow:inset 3px 0 0 var(--mcam);}
+tbody tr.ws-saw{background:rgba(59,130,246,0.07);box-shadow:inset 3px 0 0 var(--saw);}
+tbody tr.ws-mario{background:rgba(34,197,94,0.07);box-shadow:inset 3px 0 0 var(--mario);}
+tbody tr.ws-fab{background:rgba(20,184,166,0.07);box-shadow:inset 3px 0 0 var(--fab);}
+tbody tr.ws-owen{background:rgba(168,85,247,0.07);box-shadow:inset 3px 0 0 var(--owen);}
+tbody tr.row-over{background:rgba(248,113,113,0.09);}
+tbody tr.ws-mcam.row-over{box-shadow:inset 3px 0 0 var(--mcam);}
+tbody tr.ws-saw.row-over{box-shadow:inset 3px 0 0 var(--saw);}
+tbody tr.ws-mario.row-over{box-shadow:inset 3px 0 0 var(--mario);}
+tbody tr.ws-fab.row-over{box-shadow:inset 3px 0 0 var(--fab);}
+tbody tr.ws-owen.row-over{box-shadow:inset 3px 0 0 var(--owen);}
+tbody tr.ws-unassigned.row-over{box-shadow:none;}
+tbody tr.is-running{filter:brightness(2.2);animation:none !important;}
+tbody tr.is-running td{font-weight:800 !important;}
+tbody tr.is-running .td-ws{font-weight:800 !important;color:var(--text2) !important;}
+tbody tr.is-running.ws-mcam{box-shadow:inset 4px 0 0 var(--mcam);}
+tbody tr.is-running.ws-saw{box-shadow:inset 4px 0 0 var(--saw);}
+tbody tr.is-running.ws-mario{box-shadow:inset 4px 0 0 var(--mario);}
+tbody tr.is-running.ws-fab{box-shadow:inset 4px 0 0 var(--fab);}
+tbody tr.is-running.ws-owen{box-shadow:inset 4px 0 0 var(--owen);}
+tbody tr.is-running.ws-unassigned{box-shadow:inset 4px 0 0 var(--green3);}
+tr.section-divider td{padding:0.3rem 0.65rem;font-size:0.6rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--dim);
+  background:var(--surface3);border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
+.td-play{width:22px;padding:0 0 0 0.5rem !important;color:var(--green3);font-size:0.6rem;}
+.play-icon{display:inline-block;animation:playbeat 1.2s ease-in-out infinite;}
+@keyframes playbeat{0%,100%{transform:scale(1);opacity:1;}50%{transform:scale(1.4);opacity:0.6;}}
+td{padding:0.55rem 0.65rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;vertical-align:middle;}
 .td-so{font-family:'JetBrains Mono',monospace;font-size:0.82rem;font-weight:600;color:var(--text);}
 .td-cust{font-size:0.82rem;font-weight:600;color:var(--text2);}
 .td-ws{font-size:0.76rem;color:var(--muted);font-weight:500;}
 .td-due{font-size:0.82rem;font-weight:700;text-align:right;}
-.due-ok{color:var(--muted);}
-.due-soon{color:var(--run);}
-.due-over{color:var(--over);}
-
-.chip{display:inline-flex;align-items:center;gap:0.28rem;font-size:0.66rem;font-weight:700;letter-spacing:0.05em;padding:0.22rem 0.6rem;border-radius:100px;white-space:nowrap;}
-.chip-run {background:rgba(251,146,60,0.14);color:var(--run); border:1px solid rgba(251,146,60,0.35);}
-.chip-l1  {background:rgba(52,211,153,0.12);color:var(--line);border:1px solid rgba(52,211,153,0.35);}
-.chip-l2  {background:rgba(52,211,153,0.08);color:#6ee7b7;    border:1px solid rgba(52,211,153,0.2);}
-.chip-un  {background:rgba(100,116,139,0.1);color:var(--unass);border:1px solid rgba(100,116,139,0.25);}
-.chip-dot {width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0;}
-
-/* ── BOTTOM STRIP ── */
-/* Fixed height strip at bottom of each panel for widgets */
-.bottom-strip{
-  height:var(--bot-strip-h);
-  flex-shrink:0;
-  display:flex;gap:0.65rem;
-}
-
-/* ── SHARED WIDGET BASE ── */
-/* Both calendar and weather use this exact same base */
-.widget{
-  flex:1;
-  background:var(--surface);
-  border:1px solid var(--border);
-  border-radius:12px;
-  padding:0.8rem 1rem;
-  display:flex;flex-direction:column;
-  box-shadow:0 4px 24px rgba(0,0,0,0.3);
-  overflow:hidden;
-}
-.widget-hdr{
-  display:flex;align-items:center;justify-content:space-between;
-  flex-shrink:0;margin-bottom:0.5rem;
-}
-.widget-title{
-  font-family:'Barlow Condensed',sans-serif;
-  font-size:1rem;font-weight:700;letter-spacing:0.06em;color:var(--text);
-}
+.due-ok{color:var(--muted);} .due-soon{color:var(--run);} .due-over{color:var(--over);}
+.chip{display:inline-flex;align-items:center;gap:0.28rem;font-size:0.66rem;font-weight:700;letter-spacing:0.05em;padding:0.22rem 0.6rem;
+  border-radius:100px;white-space:nowrap;}
+.chip-run{background:rgba(251,146,60,0.14);color:var(--run);border:1px solid rgba(251,146,60,0.35);}
+.chip-l1{background:rgba(52,211,153,0.12);color:var(--line);border:1px solid rgba(52,211,153,0.35);}
+.chip-l2{background:rgba(52,211,153,0.08);color:#6ee7b7;border:1px solid rgba(52,211,153,0.2);}
+.chip-un{background:rgba(100,116,139,0.1);color:var(--unass);border:1px solid rgba(100,116,139,0.25);}
+.chip-dot{width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0;}
+.bottom-strip{height:var(--bot-strip-h);flex-shrink:0;display:flex;gap:0.65rem;}
+.bottom-strip.stack{flex-direction:column;}
+.bottom-strip.stack .widget{flex:1;}
+.widget{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:0.8rem 1rem;
+  display:flex;flex-direction:column;box-shadow:0 4px 24px rgba(0,0,0,0.3);overflow:hidden;}
+.widget-hdr{display:flex;align-items:center;justify-content:space-between;flex-shrink:0;margin-bottom:0.5rem;}
+.widget-title{font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:700;letter-spacing:0.06em;color:var(--text);}
 .widget-title em{font-style:normal;color:var(--green3);}
 .widget-body{flex:1;min-height:0;display:flex;flex-direction:column;}
-
-/* ── CALENDAR BODY ── */
 .cal-grid{flex:1;display:flex;flex-direction:column;gap:2px;min-height:0;}
 .cal-row{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;}
 .cal-dow{font-size:0.58rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--dim);text-align:center;}
 .cal-day{font-size:0.74rem;font-weight:500;text-align:center;border-radius:3px;color:var(--muted);line-height:1.75;}
 .cal-day.today{background:var(--green);color:#000;font-weight:800;box-shadow:0 0 8px rgba(34,197,94,0.5);}
-.cal-day.other{color:var(--dim);}
-.cal-day.wknd{color:#3a5040;}
-
-/* ── WEATHER BODY ── */
-.wx-body{
-  flex:1;min-height:0;
-  display:flex;flex-direction:column;
-  justify-content:space-between;
-}
+.cal-day.other{color:var(--dim);} .cal-day.wknd{color:#3a5040;}
+.wx-body{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:space-between;}
 .wx-main{display:flex;align-items:center;gap:1rem;}
 .wx-emoji{font-size:2.8rem;line-height:1;flex-shrink:0;filter:drop-shadow(0 0 10px rgba(255,210,80,0.3));}
 .wx-temp{font-family:'Barlow Condensed',sans-serif;font-size:2.5rem;font-weight:700;color:var(--text);line-height:1;}
 .wx-cond{font-size:0.8rem;color:var(--text2);font-weight:500;margin-top:3px;}
-.wx-meta{display:flex;align-items:center;justify-content:space-between;}
-.wx-loc{font-size:0.7rem;color:var(--muted);}
 .wx-upd{font-size:0.6rem;color:var(--dim);}
-.wx-stats{
-  display:flex;
-  border-top:1px solid var(--border);
-  padding-top:0.45rem;
-}
+.wx-stats{display:flex;border-top:1px solid var(--border);padding-top:0.45rem;}
 .wx-stat{flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;}
 .wx-stat+.wx-stat{border-left:1px solid var(--border);}
 .wx-stat-val{font-size:0.88rem;font-weight:700;color:var(--text2);}
 .wx-stat-lbl{font-size:0.58rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;}
-
-/* ── BOTTOM CLOCK BAR ── */
-.bottom-clock{
-  position:fixed;bottom:0;left:0;right:0;z-index:50;
-  height:var(--bot-h);
-  background:rgba(8,12,10,0.95);
-  border-top:1px solid var(--greenBorder);
-  display:flex;align-items:center;justify-content:center;gap:1.2rem;
-  backdrop-filter:blur(8px);
-}
-.clock{
-  font-family:'JetBrains Mono',monospace;
-  font-size:1.2rem;font-weight:600;color:var(--green3);
-  letter-spacing:0.08em;
-  text-shadow:0 0 20px rgba(74,222,128,0.4);
-}
+.oo-list{display:flex;flex-direction:column;gap:8px;min-height:0;overflow:auto;padding-right:2px;}
+.oo-item{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:10px 12px;
+  display:flex;justify-content:space-between;align-items:center;gap:10px;}
+.oo-name{font-weight:800;letter-spacing:0.06em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.oo-dates{color:var(--muted);font-size:0.75rem;white-space:nowrap;}
+.bottom-clock{position:fixed;bottom:0;left:0;right:0;z-index:50;height:var(--bot-h);background:rgba(8,12,10,0.95);
+  border-top:1px solid var(--greenBorder);display:flex;align-items:center;justify-content:center;gap:1.2rem;backdrop-filter:blur(8px);}
+.clock{font-family:'JetBrains Mono',monospace;font-size:1.2rem;font-weight:600;color:var(--green3);letter-spacing:0.08em;
+  text-shadow:0 0 20px rgba(74,222,128,0.4);}
 .clock-sep{color:var(--dim);font-size:0.8rem;}
 .clock-date{font-size:0.65rem;color:var(--muted);letter-spacing:0.07em;text-transform:uppercase;font-weight:500;}
-
-/* scrollbar */
-::-webkit-scrollbar{width:3px;}
-::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar{width:3px;} ::-webkit-scrollbar-track{background:transparent;}
 ::-webkit-scrollbar-thumb{background:var(--dim);border-radius:2px;}
 </style>
 </head>
 <body>
-
-<!-- ── HEADER ── -->
 <header>
   <div class="hdr-brand">
     <div class="brand-icon">TS</div>
@@ -417,7 +189,7 @@ td{
   </div>
   <div class="hdr-center">
     <div class="hdr-title">Open <em>Production</em> Orders</div>
-    <div class="hdr-sub">Real-Time Job Board &nbsp;·&nbsp; Auto-Refresh Every 60s</div>
+    <div class="hdr-sub">Real-Time Job Board · Auto-Refresh Every 60s</div>
   </div>
   <div class="hdr-right">
     <div class="live-pill"><div class="live-dot"></div>Live</div>
@@ -432,100 +204,55 @@ td{
   </div>
 </header>
 
-<!-- ── STATS BAR ── -->
 <div class="statsbar">
-  <div class="stat-item">
-    <div class="stat-dot" style="background:var(--green3);box-shadow:0 0 6px var(--green);"></div>
-    <div class="stat-val" id="stat-total">0</div>
-    <div class="stat-lbl">Total Orders</div>
-  </div>
-  <div class="stat-item">
-    <div class="stat-dot" style="background:var(--run);box-shadow:0 0 6px var(--run);"></div>
-    <div class="stat-val" id="stat-running">0</div>
-    <div class="stat-lbl">Running</div>
-  </div>
-  <div class="stat-item">
-    <div class="stat-dot" style="background:var(--line);box-shadow:0 0 6px var(--line);"></div>
-    <div class="stat-val" id="stat-inline">0</div>
-    <div class="stat-lbl">In Line</div>
-  </div>
-  <div class="stat-item">
-    <div class="stat-dot" style="background:var(--unass);"></div>
-    <div class="stat-val" id="stat-unass">0</div>
-    <div class="stat-lbl">Unassigned</div>
-  </div>
-  <div class="stat-item">
-    <div class="stat-dot" style="background:var(--over);box-shadow:0 0 6px var(--over);"></div>
-    <div class="stat-val" id="stat-over">0</div>
-    <div class="stat-lbl">Overdue</div>
-  </div>
+  <div class="stat-item"><div class="stat-dot" style="background:var(--green3);box-shadow:0 0 6px var(--green);"></div>
+    <div class="stat-val" id="stat-total">0</div><div class="stat-lbl">Total Orders</div></div>
+  <div class="stat-item"><div class="stat-dot" style="background:var(--run);box-shadow:0 0 6px var(--run);"></div>
+    <div class="stat-val" id="stat-running">0</div><div class="stat-lbl">Running</div></div>
+  <div class="stat-item"><div class="stat-dot" style="background:var(--line);box-shadow:0 0 6px var(--line);"></div>
+    <div class="stat-val" id="stat-inline">0</div><div class="stat-lbl">In Line</div></div>
+  <div class="stat-item"><div class="stat-dot" style="background:var(--unass);"></div>
+    <div class="stat-val" id="stat-unass">0</div><div class="stat-lbl">Unassigned</div></div>
+  <div class="stat-item"><div class="stat-dot" style="background:var(--over);box-shadow:0 0 6px var(--over);"></div>
+    <div class="stat-val" id="stat-over">0</div><div class="stat-lbl">Overdue</div></div>
 </div>
 
-<!-- ── BODY ── -->
 <div class="body-wrap">
-
-  <!-- LEFT: TrenchSafe + Calendar -->
   <div class="left-panel">
     <div class="col-box ts-col">
       <div class="col-head">
-        <div class="col-title-wrap">
-          <div class="col-accent"></div>
-          <div class="col-name">TrenchSafe</div>
-        </div>
-        <div class="col-badges">
-          <span class="cbadge cb-total" id="ts-total">0</span>
-          <span class="cbadge cb-run"   id="ts-run">0 ▶</span>
-        </div>
+        <div class="col-title-wrap"><div class="col-accent"></div><div class="col-name">TrenchSafe</div></div>
+        <div class="col-badges"><span class="cbadge cb-total" id="ts-total">0</span><span class="cbadge cb-run" id="ts-run">0 ▶</span></div>
       </div>
       <div class="tbl-wrap">
         <table>
           <thead><tr>
-            <th style="width:3%"></th>
-            <th style="width:20%">SO #</th>
-            <th style="width:26%">Customer</th>
-            <th style="width:20%">Station</th>
-            <th style="width:18%">Workstation</th>
-            <th style="width:13%">Due</th>
+            <th style="width:3%"></th><th style="width:20%">SO #</th><th style="width:26%">Customer</th>
+            <th style="width:20%">Station</th><th style="width:18%">Workstation</th><th style="width:13%">Due</th>
           </tr></thead>
           <tbody id="ts-tbody"></tbody>
         </table>
       </div>
     </div>
-    <!-- CALENDAR -->
     <div class="bottom-strip">
       <div class="widget">
-        <div class="widget-hdr">
-          <div class="widget-title" id="cal-title">February 2026</div>
-        </div>
-        <div class="widget-body">
-          <div class="cal-grid" id="calGrid"></div>
-        </div>
+        <div class="widget-hdr"><div class="widget-title" id="cal-title">Month</div></div>
+        <div class="widget-body"><div class="cal-grid" id="calGrid"></div></div>
       </div>
     </div>
   </div>
 
-  <!-- MIDDLE: Laird Plastics (full height, no bottom strip) -->
   <div class="mid-panel">
     <div class="col-box lp-col">
       <div class="col-head">
-        <div class="col-title-wrap">
-          <div class="col-accent"></div>
-          <div class="col-name">Laird Plastics</div>
-        </div>
-        <div class="col-badges">
-          <span class="cbadge cb-total" id="lp-total">0</span>
-          <span class="cbadge cb-run"   id="lp-run">0 ▶</span>
-        </div>
+        <div class="col-title-wrap"><div class="col-accent"></div><div class="col-name">Laird Plastics</div></div>
+        <div class="col-badges"><span class="cbadge cb-total" id="lp-total">0</span><span class="cbadge cb-run" id="lp-run">0 ▶</span></div>
       </div>
       <div class="tbl-wrap">
         <table>
           <thead><tr>
-            <th style="width:3%"></th>
-            <th style="width:17%">SO #</th>
-            <th style="width:26%">Customer</th>
-            <th style="width:20%">Station</th>
-            <th style="width:20%">Workstation</th>
-            <th style="width:14%">Due</th>
+            <th style="width:3%"></th><th style="width:17%">SO #</th><th style="width:26%">Customer</th>
+            <th style="width:20%">Station</th><th style="width:20%">Workstation</th><th style="width:14%">Due</th>
           </tr></thead>
           <tbody id="lp-tbody"></tbody>
         </table>
@@ -533,35 +260,32 @@ td{
     </div>
   </div>
 
-  <!-- RIGHT: Pneumatic Vacuum + Weather -->
   <div class="right-panel">
     <div class="col-box pv-col">
       <div class="col-head">
-        <div class="col-title-wrap">
-          <div class="col-accent"></div>
-          <div class="col-name">Pneumatic Vacuum</div>
-        </div>
-        <div class="col-badges">
-          <span class="cbadge cb-total" id="pv-total">0</span>
-          <span class="cbadge cb-run"   id="pv-run">0 ▶</span>
-        </div>
+        <div class="col-title-wrap"><div class="col-accent"></div><div class="col-name">Pneumatic Vacuum</div></div>
+        <div class="col-badges"><span class="cbadge cb-total" id="pv-total">0</span><span class="cbadge cb-run" id="pv-run">0 ▶</span></div>
       </div>
       <div class="tbl-wrap" style="overflow-y:auto;">
         <table style="height:auto;">
           <thead><tr>
-            <th style="width:3%"></th>
-            <th style="width:20%">SO #</th>
-            <th style="width:25%">Customer</th>
-            <th style="width:22%">Station</th>
-            <th style="width:18%">Wkstn</th>
-            <th style="width:12%">Due</th>
+            <th style="width:3%"></th><th style="width:20%">SO #</th><th style="width:25%">Customer</th>
+            <th style="width:22%">Station</th><th style="width:18%">Wkstn</th><th style="width:12%">Due</th>
           </tr></thead>
           <tbody id="pv-tbody"></tbody>
         </table>
       </div>
     </div>
-    <!-- WEATHER — same .widget class as calendar -->
-    <div class="bottom-strip">
+
+    <div class="bottom-strip stack">
+      <div class="widget">
+        <div class="widget-hdr">
+          <div class="widget-title">🏖️ <em>Out of Office</em></div>
+          <div class="wx-upd" id="ooUpd"></div>
+        </div>
+        <div class="widget-body"><div class="oo-list" id="ooList"></div></div>
+      </div>
+
       <div class="widget">
         <div class="widget-hdr">
           <div class="widget-title">📍 <em id="wxCity">Austell, GA</em></div>
@@ -577,28 +301,18 @@ td{
               </div>
             </div>
             <div class="wx-stats">
-              <div class="wx-stat">
-                <div class="wx-stat-val" id="wxHi">--°</div>
-                <div class="wx-stat-lbl">High</div>
-              </div>
-              <div class="wx-stat">
-                <div class="wx-stat-val" id="wxLo">--°</div>
-                <div class="wx-stat-lbl">Low</div>
-              </div>
-              <div class="wx-stat">
-                <div class="wx-stat-val" id="wxHum">--%</div>
-                <div class="wx-stat-lbl">Humidity</div>
-              </div>
+              <div class="wx-stat"><div class="wx-stat-val" id="wxHi">--°</div><div class="wx-stat-lbl">High</div></div>
+              <div class="wx-stat"><div class="wx-stat-val" id="wxLo">--°</div><div class="wx-stat-lbl">Low</div></div>
+              <div class="wx-stat"><div class="wx-stat-val" id="wxHum">--%</div><div class="wx-stat-lbl">Humidity</div></div>
             </div>
           </div>
         </div>
       </div>
     </div>
+
   </div>
+</div>
 
-</div><!-- /body-wrap -->
-
-<!-- ── BOTTOM CLOCK BAR ── -->
 <div class="bottom-clock">
   <div class="clock-date" id="clockDate">---</div>
   <div class="clock-sep">·</div>
@@ -608,14 +322,18 @@ td{
 </div>
 
 <script>
-// ── CONFIG ───────────────────────────────────────────────────────────────────
 const DATA_URL = 'https://raw.githubusercontent.com/dksmith22/sharepoint-json-feed-all/refs/heads/main/sharepointdata.json';
+
+// ✅ Put your Vacation JSON raw link here (the one that returns your calendar array)
+const OOO_URL  = 'https://raw.githubusercontent.com/dksmith22/sharepoint-json-feed-all/refs/heads/main/calendar.json';
+
 const WX_LAT   = 33.8132;
 const WX_LON   = -84.6613;
 const REFRESH  = 60000;
 const WX_FREQ  = 600000;
+const OOO_FREQ = 300000;
 
-// ── CLOCK ────────────────────────────────────────────────────────────────────
+// CLOCK
 function tickClock(){
   const n = new Date();
   document.getElementById('clock').textContent =
@@ -625,96 +343,124 @@ function tickClock(){
 }
 setInterval(tickClock,1000); tickClock();
 
-// ── CALENDAR ─────────────────────────────────────────────────────────────────
+// CALENDAR
 function buildCalendar(){
   const now=new Date(), yr=now.getFullYear(), mo=now.getMonth(), today=now.getDate();
   const monthName = now.toLocaleDateString('en-US',{month:'long'});
-  document.getElementById('cal-title').innerHTML =
-    `<em>${monthName}</em> ${yr}`;
-
-  const first    = new Date(yr,mo,1).getDay();
-  const daysInMo = new Date(yr,mo+1,0).getDate();
-  const daysInPrev = new Date(yr,mo,0).getDate();
-  const DAYS = ['Su','Mo','Tu','We','Th','Fr','Sa'];
-
-  let cells = [];
+  document.getElementById('cal-title').innerHTML = `<em>${monthName}</em> ${yr}`;
+  const first=new Date(yr,mo,1).getDay();
+  const daysInMo=new Date(yr,mo+1,0).getDate();
+  const daysInPrev=new Date(yr,mo,0).getDate();
+  const DAYS=['Su','Mo','Tu','We','Th','Fr','Sa'];
+  let cells=[];
   for(let i=first-1;i>=0;i--) cells.push({d:daysInPrev-i, cls:'other'});
   for(let i=1;i<=daysInMo;i++){
     const dow=(first+i-1)%7;
-    cells.push({d:i, cls: i===today?'today':(dow===0||dow===6)?'wknd':''});
+    cells.push({d:i, cls:i===today?'today':(dow===0||dow===6)?'wknd':''});
   }
   while(cells.length%7) cells.push({d:cells.length-daysInMo-first+1, cls:'other'});
-
-  const grid = document.getElementById('calGrid');
-  let html = `<div class="cal-row">${DAYS.map(d=>`<div class="cal-dow">${d}</div>`).join('')}</div>`;
+  const grid=document.getElementById('calGrid');
+  let html=`<div class="cal-row">${DAYS.map(d=>`<div class="cal-dow">${d}</div>`).join('')}</div>`;
   for(let r=0;r<cells.length;r+=7){
-    html += `<div class="cal-row">`;
+    html+=`<div class="cal-row">`;
     for(let c=r;c<r+7;c++){
       const x=cells[c]||{d:'',cls:''};
-      html += `<div class="cal-day ${x.cls}">${x.d}</div>`;
+      html+=`<div class="cal-day ${x.cls}">${x.d}</div>`;
     }
-    html += `</div>`;
+    html+=`</div>`;
   }
-  grid.innerHTML = html;
+  grid.innerHTML=html;
 }
 buildCalendar();
 
-// ── WEATHER ──────────────────────────────────────────────────────────────────
-const WX_ICONS = {0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',48:'🌫️',51:'🌦️',53:'🌦️',55:'🌧️',61:'🌧️',63:'🌧️',65:'🌧️',71:'🌨️',73:'🌨️',75:'❄️',80:'🌧️',81:'🌧️',82:'🌧️',95:'⛈️',99:'⛈️'};
-const WX_DESC  = {0:'Clear sky',1:'Mostly clear',2:'Partly cloudy',3:'Overcast',45:'Foggy',48:'Icy fog',51:'Light drizzle',53:'Drizzle',55:'Heavy drizzle',61:'Light rain',63:'Rain',65:'Heavy rain',71:'Light snow',73:'Snow',75:'Heavy snow',80:'Rain showers',81:'Rain showers',82:'Heavy showers',95:'Thunderstorm',99:'Thunderstorm'};
-
+// WEATHER
+const WX_ICONS={0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',48:'🌫️',51:'🌦️',53:'🌦️',55:'🌧️',61:'🌧️',63:'🌧️',65:'🌧️',71:'🌨️',73:'🌨️',75:'❄️',80:'🌧️',81:'🌧️',82:'🌧️',95:'⛈️',99:'⛈️'};
+const WX_DESC ={0:'Clear sky',1:'Mostly clear',2:'Partly cloudy',3:'Overcast',45:'Foggy',48:'Icy fog',51:'Light drizzle',53:'Drizzle',55:'Heavy drizzle',61:'Light rain',63:'Rain',65:'Heavy rain',71:'Light snow',73:'Snow',75:'Heavy snow',80:'Rain showers',81:'Rain showers',82:'Heavy showers',95:'Thunderstorm',99:'Thunderstorm'};
 async function fetchWeather(){
   try{
     const url=`https://api.open-meteo.com/v1/forecast?latitude=${WX_LAT}&longitude=${WX_LON}&current=temperature_2m,relative_humidity_2m,weather_code&daily=temperature_2m_max,temperature_2m_min&temperature_unit=fahrenheit&forecast_days=1&timezone=America%2FNew_York`;
-    const d = await (await fetch(url)).json();
+    const d=await (await fetch(url)).json();
     const cur=d.current, day=d.daily, code=cur.weather_code;
-    document.getElementById('wxIcon').textContent = WX_ICONS[code]||'🌤️';
-    document.getElementById('wxTemp').textContent = Math.round(cur.temperature_2m)+'°F';
-    document.getElementById('wxCond').textContent = WX_DESC[code]||'Unknown';
-    document.getElementById('wxHi').textContent   = Math.round(day.temperature_2m_max[0])+'°';
-    document.getElementById('wxLo').textContent   = Math.round(day.temperature_2m_min[0])+'°';
-    document.getElementById('wxHum').textContent  = cur.relative_humidity_2m+'%';
-    document.getElementById('wxUpd').textContent  = 'Updated '+new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
-  }catch(e){
-    document.getElementById('wxCond').textContent='Unavailable';
-  }
+    wxIcon.textContent=WX_ICONS[code]||'🌤️';
+    wxTemp.textContent=Math.round(cur.temperature_2m)+'°F';
+    wxCond.textContent=WX_DESC[code]||'Unknown';
+    wxHi.textContent=Math.round(day.temperature_2m_max[0])+'°';
+    wxLo.textContent=Math.round(day.temperature_2m_min[0])+'°';
+    wxHum.textContent=cur.relative_humidity_2m+'%';
+    wxUpd.textContent='Updated '+new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+  }catch(e){ wxCond.textContent='Unavailable'; }
 }
 fetchWeather(); setInterval(fetchWeather, WX_FREQ);
 
-// ── HELPERS ──────────────────────────────────────────────────────────────────
-function pSt(s){
-  if(!s) return 'U';
-  const u=s.trim().toUpperCase();
-  if(u==='_RUNNING_') return 'R';
-  if(u==='IN LINE 1') return 'L1';
-  if(u==='IN LINE 2') return 'L2';
-  return 'U';
+// OOO (VACATION)
+function toYMD(s){ return s ? String(s).slice(0,10) : ''; }
+function nameFromSubject(sub){
+  if(!sub) return '—';
+  return sub.replace(/\s+(VACATION|OOO|OUT OF OFFICE)\s*$/i,'').trim() || sub.trim();
 }
+function isTodayWithinExclusive(today,startYMD,endYMD){ return (today>=startYMD)&&(today<endYMD); }
+function fmtRange(startYMD,endYMD){
+  const s=new Date(startYMD+'T00:00:00'); const e=new Date(endYMD+'T00:00:00'); e.setDate(e.getDate()-1);
+  const fmt=(d)=> (d.getMonth()+1)+'/'+d.getDate()+'/'+String(d.getFullYear()).slice(2);
+  return `${fmt(s)} → ${fmt(e)}`;
+}
+async function fetchOOO(){
+  const list=document.getElementById('ooList');
+  try{
+    if(!OOO_URL || OOO_URL.includes('PASTE_YOUR_VACATION_JSON_RAW_URL_HERE')){
+      list.innerHTML=`<div style="color:var(--muted);font-size:0.8rem;letter-spacing:.06em;">Set <b>OOO_URL</b> in the script to your GitHub raw JSON link.</div>`;
+      return;
+    }
+    const res=await fetch(OOO_URL+'?t='+Date.now());
+    const data=await res.json();
+    const today=toYMD(new Date().toISOString());
+    const normalized=(Array.isArray(data)?data:[]).map(e=>{
+      const startYMD=toYMD(e.start||e.Start||'');
+      const endYMD  =toYMD(e.end||e.End||'');
+      const nm=e.name||e.Name||nameFromSubject(e.subject||e.Subject||'');
+      return {name:nm,start:startYMD,end:endYMD};
+    }).filter(x=>x.start&&x.end);
+    const outToday=normalized.filter(e=>isTodayWithinExclusive(today,e.start,e.end));
+    if(!outToday.length){
+      list.innerHTML=`<div style="color:var(--muted);font-size:0.8rem;letter-spacing:.06em;">No one is out today</div>`;
+    }else{
+      list.innerHTML=outToday.map(e=>`
+        <div class="oo-item">
+          <div class="oo-name">${e.name}</div>
+          <div class="oo-dates">${fmtRange(e.start,e.end)}</div>
+        </div>`).join('');
+    }
+    document.getElementById('ooUpd').textContent='Updated '+new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+  }catch(err){
+    list.innerHTML=`<div style="color:var(--over);font-size:0.8rem;">OOO feed unavailable</div>`;
+  }
+}
+fetchOOO(); setInterval(fetchOOO, OOO_FREQ);
+
+// TABLE HELPERS
+function pSt(s){ if(!s) return 'U'; const u=s.trim().toUpperCase(); if(u==='_RUNNING_') return 'R'; if(u==='IN LINE 1') return 'L1'; if(u==='IN LINE 2') return 'L2'; return 'U'; }
 function chip(st){
-  if(st==='R')  return`<span class="chip chip-run"><span class="chip-dot"></span>Running</span>`;
-  if(st==='L1') return`<span class="chip chip-l1"><span class="chip-dot"></span>In Line 1</span>`;
-  if(st==='L2') return`<span class="chip chip-l2"><span class="chip-dot"></span>In Line 2</span>`;
-  return`<span class="chip chip-un">Unassigned</span>`;
+  if(st==='R') return `<span class="chip chip-run"><span class="chip-dot"></span>Running</span>`;
+  if(st==='L1') return `<span class="chip chip-l1"><span class="chip-dot"></span>In Line 1</span>`;
+  if(st==='L2') return `<span class="chip chip-l2"><span class="chip-dot"></span>In Line 2</span>`;
+  return `<span class="chip chip-un">Unassigned</span>`;
 }
-// Map workstation name → CSS class
 function wsCls(ws){
   if(!ws) return 'ws-unassigned';
-  const u = ws.trim().toUpperCase();
-  if(u.includes('MULTICAM') || u.includes('MCAM')) return 'ws-mcam';
-  if(u === 'SAW')         return 'ws-saw';
+  const u=ws.trim().toUpperCase();
+  if(u.includes('MULTICAM')||u.includes('MCAM')) return 'ws-mcam';
+  if(u==='SAW') return 'ws-saw';
   if(u.includes('MARIO')) return 'ws-mario';
-  if(u === 'FAB')         return 'ws-fab';
-  if(u.includes('OWEN'))  return 'ws-owen';
-  if(u === 'UNASSIGNED')  return 'ws-unassigned';
-  return 'ws-unassigned';
+  if(u==='FAB') return 'ws-fab';
+  if(u.includes('OWEN')) return 'ws-owen';
+  if(u==='UNASSIGNED') return 'ws-unassigned';
+  return '';
 }
-
-function rowCls(st, ds, ws){
-  const diff = ds ? (new Date(ds)-new Date())/86400000 : 999;
-  const machine = wsCls(ws);
-  const running = st==='R' ? 'is-running' : '';
-  const overdue = diff<0   ? 'row-over'   : '';
-  // unassigned workstation → bg matches page
+function rowCls(st,ds,ws){
+  const diff=ds?(new Date(ds)-new Date())/86400000:999;
+  const machine=wsCls(ws);
+  const running=st==='R'?'is-running':'';
+  const overdue=diff<0?'row-over':'';
   if(machine==='ws-unassigned') return `ws-unassigned ${running} ${overdue}`.trim();
   return `${machine} ${running} ${overdue}`.trim();
 }
@@ -725,11 +471,7 @@ function dueCls(ds){
   if(d<=7) return 'due-soon';
   return 'due-ok';
 }
-function fmtDate(ds){
-  if(!ds) return '—';
-  const d=new Date(ds);
-  return (d.getMonth()+1)+'/'+(d.getDate())+'/'+String(d.getFullYear()).slice(2);
-}
+function fmtDate(ds){ if(!ds) return '—'; const d=new Date(ds); return (d.getMonth()+1)+'/'+d.getDate()+'/'+String(d.getFullYear()).slice(2); }
 function sortJobs(arr){
   const o={R:0,L1:1,L2:2,U:3};
   return [...arr].sort((a,b)=>{
@@ -738,16 +480,10 @@ function sortJobs(arr){
     return new Date(a['Due Date'])-new Date(b['Due Date']);
   });
 }
-
-// ── RENDER TABLE ─────────────────────────────────────────────────────────────
 function buildRow(j){
-  const st = pSt(j['Station Order']);
-  const ws = j['Workstation']||'';
-  const isRun = st==='R';
-  const playCell = isRun
-    ? `<td class="td-play"><span class="play-icon">▶</span></td>`
-    : `<td class="td-play"></td>`;
-  return`<tr class="${rowCls(st,j['Due Date'],ws)}">
+  const st=pSt(j['Station Order']); const ws=j['Workstation']||''; const isRun=st==='R';
+  const playCell=isRun?`<td class="td-play"><span class="play-icon">▶</span></td>`:`<td class="td-play"></td>`;
+  return `<tr class="${rowCls(st,j['Due Date'],ws)}">
     ${playCell}
     <td class="td-so">${j['SO Number']||'—'}</td>
     <td class="td-cust">${(j['Customer']||'—').substring(0,17)}</td>
@@ -756,72 +492,59 @@ function buildRow(j){
     <td class="td-due ${dueCls(j['Due Date'])}">${fmtDate(j['Due Date'])}</td>
   </tr>`;
 }
-
-function renderTable(tbodyId, totalId, runId, jobs){
-  const sorted  = sortJobs(jobs);
-  const running = sorted.filter(j=>pSt(j['Station Order'])==='R');
-  const rest    = sorted.filter(j=>pSt(j['Station Order'])!=='R');
-  document.getElementById(totalId).textContent = sorted.length+' order'+(sorted.length!==1?'s':'');
-  document.getElementById(runId).textContent   = running.length+' ▶';
-  const tb = document.getElementById(tbodyId);
+function renderTable(tbodyId,totalId,runId,jobs){
+  const sorted=sortJobs(jobs);
+  const running=sorted.filter(j=>pSt(j['Station Order'])==='R');
+  const rest=sorted.filter(j=>pSt(j['Station Order'])!=='R');
+  document.getElementById(totalId).textContent=sorted.length+' order'+(sorted.length!==1?'s':'');
+  document.getElementById(runId).textContent=running.length+' ▶';
+  const tb=document.getElementById(tbodyId);
   if(!sorted.length){
     tb.innerHTML=`<tr><td colspan="6" style="text-align:center;color:var(--dim);padding:1.5rem;font-size:0.75rem;letter-spacing:0.08em;">NO ACTIVE JOBS</td></tr>`;
     return;
   }
-  let html = '';
-  // ── RUNNING SECTION ──
+  let html='';
   if(running.length){
-    html += `<tr class="section-divider"><td colspan="6">▶ &nbsp;Now Running — ${running.length} job${running.length!==1?'s':''}</td></tr>`;
-    html += running.map(buildRow).join('');
+    html+=`<tr class="section-divider"><td colspan="6">▶ Now Running — ${running.length} job${running.length!==1?'s':''}</td></tr>`;
+    html+=running.map(buildRow).join('');
   }
-  // ── DIVIDER between sections ──
-  if(running.length && rest.length){
-    html += `<tr class="section-divider"><td colspan="6">Queue — ${rest.length} job${rest.length!==1?'s':''}</td></tr>`;
+  if(running.length&&rest.length){
+    html+=`<tr class="section-divider"><td colspan="6">Queue — ${rest.length} job${rest.length!==1?'s':''}</td></tr>`;
   }
-  // ── REST ──
-  html += rest.map(buildRow).join('');
-  tb.innerHTML = html;
+  html+=rest.map(buildRow).join('');
+  tb.innerHTML=html;
 }
-
-// ── SORT INTO COLUMNS ─────────────────────────────────────────────────────────
 function splitCols(data){
   const ts=[],lp=[],pv=[];
   data.forEach(j=>{
     const c=(j['Customer']||'').trim().toUpperCase();
-    if(c==='PVE')                  pv.push(j);
+    if(c==='PVE') pv.push(j);
     else if(j['Trenchsafe']==='Yes') ts.push(j);
-    else                            lp.push(j);
+    else lp.push(j);
   });
-  return{ts,lp,pv};
+  return {ts,lp,pv};
 }
-
-// ── UPDATE STATS BAR ─────────────────────────────────────────────────────────
 function updateStats(data){
-  const running = data.filter(j=>pSt(j['Station Order'])==='R').length;
-  const inline  = data.filter(j=>{const s=pSt(j['Station Order']);return s==='L1'||s==='L2';}).length;
-  const unass   = data.filter(j=>pSt(j['Station Order'])==='U').length;
-  const over    = data.filter(j=>j['Due Date']&&(new Date(j['Due Date'])-new Date())<0).length;
-  document.getElementById('stat-total').textContent   = data.length;
-  document.getElementById('stat-running').textContent = running;
-  document.getElementById('stat-inline').textContent  = inline;
-  document.getElementById('stat-unass').textContent   = unass;
-  document.getElementById('stat-over').textContent    = over;
+  const running=data.filter(j=>pSt(j['Station Order'])==='R').length;
+  const inline=data.filter(j=>{const s=pSt(j['Station Order']);return s==='L1'||s==='L2';}).length;
+  const unass=data.filter(j=>pSt(j['Station Order'])==='U').length;
+  const over=data.filter(j=>j['Due Date']&&(new Date(j['Due Date'])-new Date())<0).length;
+  stat_total.textContent=data.length;
+  stat_running.textContent=running;
+  stat_inline.textContent=inline;
+  stat_unass.textContent=unass;
+  stat_over.textContent=over;
 }
-
-// ── LOAD & RENDER ─────────────────────────────────────────────────────────────
 async function loadData(){
   try{
-    const data = await (await fetch(DATA_URL+'?t='+Date.now())).json();
-    const {ts,lp,pv} = splitCols(data);
+    const data=await (await fetch(DATA_URL+'?t='+Date.now())).json();
+    const {ts,lp,pv}=splitCols(data);
     renderTable('ts-tbody','ts-total','ts-run',ts);
     renderTable('lp-tbody','lp-total','lp-run',lp);
     renderTable('pv-tbody','pv-total','pv-run',pv);
     updateStats(data);
-    document.getElementById('lastUpd').textContent =
-      'Refreshed '+new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-  }catch(e){
-    console.error('Data load error:',e);
-  }
+    lastUpd.textContent='Refreshed '+new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  }catch(e){ console.error('Data load error:',e); }
 }
 loadData(); setInterval(loadData, REFRESH);
 </script>
