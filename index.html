@@ -157,6 +157,27 @@ td{padding:0.55rem 0.65rem;white-space:nowrap;overflow:hidden;text-overflow:elli
 .wx-emoji{font-size:2.8rem;line-height:1;flex-shrink:0;filter:drop-shadow(0 0 10px rgba(255,210,80,0.3));}
 .wx-temp{font-family:'Barlow Condensed',sans-serif;font-size:2.5rem;font-weight:700;color:var(--text);line-height:1;}
 .wx-cond{font-size:0.8rem;color:var(--text2);font-weight:500;margin-top:3px;}
+
+  /* --- Weather widget: compact horizontal layout so it doesn't get squished when stacked --- */
+  .wx-body{ flex-direction:row; align-items:center; gap:14px; }
+  .wx-main{ flex:1; min-width:0; }
+  .wx-stats{
+    flex-direction:column;
+    border-top:none;
+    border-left:1px solid var(--border);
+    padding-top:0;
+    padding-left:14px;
+    min-width:110px;
+  }
+  .wx-stat{ padding:0; min-width:0; }
+  .wx-stat + .wx-stat{
+    border-left:none;
+    border-top:1px solid var(--border);
+    padding-top:6px;
+    margin-top:6px;
+    padding-left:0;
+    margin-left:0;
+  }
 .wx-upd{font-size:0.6rem;color:var(--dim);}
 .wx-stats{display:flex;border-top:1px solid var(--border);padding-top:0.45rem;}
 .wx-stat{flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;}
