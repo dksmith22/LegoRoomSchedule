@@ -302,7 +302,6 @@ td{padding:0.55rem 0.65rem;white-space:nowrap;overflow:hidden;text-overflow:elli
       <div class="widget">
         <div class="widget-hdr">
           <div class="widget-title">🏖️ <em>Out of Office</em></div>
-          <div class="wx-upd" id="ooUpd"></div>
         </div>
         <div class="widget-body"><div class="oo-list" id="ooList"></div></div>
       </div>
@@ -310,7 +309,6 @@ td{padding:0.55rem 0.65rem;white-space:nowrap;overflow:hidden;text-overflow:elli
       <div class="widget">
         <div class="widget-hdr">
           <div class="widget-title">📍 <em id="wxCity">Austell, GA</em></div>
-          <div class="wx-upd" id="wxUpd"></div>
         </div>
         <div class="widget-body">
           <div class="wx-body">
@@ -408,7 +406,6 @@ async function fetchWeather(){
     wxHi.textContent=Math.round(day.temperature_2m_max[0])+'°';
     wxLo.textContent=Math.round(day.temperature_2m_min[0])+'°';
     wxHum.textContent=cur.relative_humidity_2m+'%';
-    wxUpd.textContent='Updated '+new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
   }catch(e){ wxCond.textContent='Unavailable'; }
 }
 fetchWeather(); setInterval(fetchWeather, WX_FREQ);
@@ -451,7 +448,6 @@ async function fetchOOO(){
           <div class="oo-dates">${fmtRange(e.start,e.end)}</div>
         </div>`).join('');
     }
-    document.getElementById('ooUpd').textContent='Updated '+new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
   }catch(err){
     list.innerHTML=`<div style="color:var(--over);font-size:0.8rem;">OOO feed unavailable</div>`;
   }
