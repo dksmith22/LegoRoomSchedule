@@ -184,40 +184,23 @@ td{padding:0.55rem 0.65rem;white-space:nowrap;overflow:hidden;text-overflow:elli
 .wx-stat+.wx-stat{border-left:1px solid var(--border);}
 .wx-stat-val{font-size:0.88rem;font-weight:700;color:var(--text2);}
 .wx-stat-lbl{font-size:0.58rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;}
-
-/* --- Out of Office widget: auto-fit content (no scrolling; progressively tightens spacing if needed) --- */
-.oo-list{
-  display:flex;
-  flex-direction:column;
-  gap:var(--oo-gap, 8px);
-  min-height:0;
-  overflow:hidden;
-  padding-right:2px;
-}
-.oo-item{
-  background:rgba(255,255,255,0.04);
-  border:1px solid rgba(255,255,255,0.07);
-  border-radius:10px;
-  padding:var(--oo-item-pad, 10px) var(--oo-item-pad-x, 12px);
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:10px;
-}
-.oo-name{
-  font-weight:800;
-  letter-spacing:0.06em;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-  font-size:var(--oo-name-size, 0.92rem);
-}
-.oo-dates{
-  color:var(--muted);
-  white-space:nowrap;
-  font-size:var(--oo-dates-size, 0.75rem);
-}
-
+.oo-list{display:flex;flex-direction:column;gap:8px;min-height:0;overflow:auto;padding-right:2px;}
+.oo-item{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:10px 12px;
+  display:flex;justify-content:space-between;align-items:center;gap:10px;}
+.oo-name{font-weight:800;letter-spacing:0.06em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.oo-dates{color:var(--muted);font-size:0.75rem;white-space:nowrap;}
+/* --- OOO widget auto-fit --- */
+#ooWidget .widget-body{min-height:0;}
+#ooWidget .oo-list{overflow:hidden;} /* we'll control overflow with sizing first */
+#ooWidget.compact .oo-item{padding:8px 10px;border-radius:10px;}
+#ooWidget.compact .oo-name{font-size:0.85rem;}
+#ooWidget.compact .oo-dates{font-size:0.7rem;}
+/* Allow the name to wrap instead of ellipsis so more info is visible */
+#ooWidget .oo-name{white-space:normal;overflow:visible;text-overflow:clip;line-height:1.15;}
+#ooWidget .oo-item{align-items:flex-start;}
+#ooWidget .oo-dates{margin-top:2px;}
+/* If still too much content, allow scrolling as a last resort */
+#ooWidget.allow-scroll .oo-list{overflow:auto;padding-right:2px;}
 .bottom-clock{position:fixed;bottom:0;left:0;right:0;z-index:50;height:var(--bot-h);background:rgba(8,12,10,0.95);
   border-top:1px solid var(--greenBorder);display:flex;align-items:center;justify-content:center;gap:1.2rem;backdrop-filter:blur(8px);}
 .clock{font-family:'JetBrains Mono',monospace;font-size:1.2rem;font-weight:600;color:var(--green3);letter-spacing:0.08em;
@@ -328,14 +311,14 @@ td{padding:0.55rem 0.65rem;white-space:nowrap;overflow:hidden;text-overflow:elli
     </div>
 
     <div class="bottom-strip stack">
-      <div class="widget">
+      <div class="widget" id="ooWidget">
         <div class="widget-hdr">
           <div class="widget-title">🏖️ <em>Out of Office</em></div>
         </div>
         <div class="widget-body"><div class="oo-list" id="ooList"></div></div>
       </div>
 
-      <div class="widget">
+      <div class="widget" id="wxWidget">
         <div class="widget-hdr">
           <div class="widget-title">📍 <em id="wxCity">Austell, GA</em></div>
         </div>
@@ -380,6 +363,14 @@ const WX_LON   = -84.6613;
 const REFRESH  = 60000;
 const WX_FREQ  = 600000;
 const OOO_FREQ = 300000;
+
+// DOM REFS (avoid relying on id-to-window globals; improves compatibility)
+const stat_total   = document.getElementById('stat-total');
+const stat_running = document.getElementById('stat-running');
+const stat_inline  = document.getElementById('stat-inline');
+const stat_unass   = document.getElementById('stat-unass');
+const stat_over    = document.getElementById('stat-over');
+const lastUpd      = document.getElementById('lastUpd');
 
 // CLOCK
 function tickClock(){
@@ -451,30 +442,38 @@ function fmtRange(startYMD,endYMD){
   const fmt=(d)=> (d.getMonth()+1)+'/'+d.getDate()+'/'+String(d.getFullYear()).slice(2);
   return `${fmt(s)} → ${fmt(e)}`;
 }
+function fitOOOWidget(count){
+  const ooW = document.getElementById('ooWidget');
+  const wxW = document.getElementById('wxWidget');
+  const list = document.getElementById('ooList');
+  if(!ooW || !wxW || !list) return;
 
-/* Auto-fit logic: tightens OOO spacing/font until everything fits without scrolling */
-function fitOOO(){
-  const list=document.getElementById('ooList');
-  if(!list) return;
-  const widget = list.closest('.widget') || document.documentElement;
+  // Reset
+  ooW.classList.remove('compact','allow-scroll');
+  ooW.style.flex = '';
+  wxW.style.flex = '';
 
-  const presets=[
-    {gap:8,padY:10,padX:12,name:0.92,dates:0.75},
-    {gap:6,padY:9 ,padX:11,name:0.90,dates:0.72},
-    {gap:5,padY:8 ,padX:10,name:0.88,dates:0.70},
-    {gap:4,padY:7 ,padX:9 ,name:0.86,dates:0.68},
-    {gap:3,padY:6 ,padX:8 ,name:0.84,dates:0.66}
-  ];
+  // First: compact styling when we have multiple entries
+  if(count >= 3) ooW.classList.add('compact');
 
-  for(const p of presets){
-    widget.style.setProperty('--oo-gap', p.gap+'px');
-    widget.style.setProperty('--oo-item-pad', p.padY+'px');
-    widget.style.setProperty('--oo-item-pad-x', p.padX+'px');
-    widget.style.setProperty('--oo-name-size', p.name+'rem');
-    widget.style.setProperty('--oo-dates-size', p.dates+'rem');
+  // Measure overflow
+  const available = list.clientHeight;
+  const needed = list.scrollHeight;
 
-    // Force reflow check
-    if(list.scrollHeight <= list.clientHeight + 1) break;
+  // If content doesn't fit, give OOO more height by taking it from Weather
+  if(needed > available + 2){
+    // Increase OOO share based on item count
+    const ooFlex = Math.min(2.4, 1.2 + (count * 0.25));
+    const wxFlex = Math.max(0.4, 2.6 - ooFlex); // keep some space for weather
+    ooW.style.flex = String(ooFlex);
+    wxW.style.flex = String(wxFlex);
+
+    // Re-check after the layout settles; if still overflowing, allow scroll as last resort
+    requestAnimationFrame(()=>{
+      if(list.scrollHeight > list.clientHeight + 2){
+        ooW.classList.add('allow-scroll');
+      }
+    });
   }
 }
 
@@ -483,7 +482,6 @@ async function fetchOOO(){
   try{
     if(!OOO_URL || OOO_URL.includes('PASTE_YOUR_VACATION_JSON_RAW_URL_HERE')){
       list.innerHTML=`<div style="color:var(--muted);font-size:0.8rem;letter-spacing:.06em;">Set <b>OOO_URL</b> in the script to your GitHub raw JSON link.</div>`;
-      requestAnimationFrame(()=>requestAnimationFrame(fitOOO));
       return;
     }
     const res=await fetch(OOO_URL+'?t='+Date.now());
@@ -498,17 +496,18 @@ async function fetchOOO(){
     const outToday=normalized.filter(e=>isTodayWithinExclusive(today,e.start,e.end));
     if(!outToday.length){
       list.innerHTML=`<div style="color:var(--muted);font-size:0.8rem;letter-spacing:.06em;">No one is out today</div>`;
+      requestAnimationFrame(()=>fitOOOWidget(0));
     }else{
       list.innerHTML=outToday.map(e=>`
         <div class="oo-item">
           <div class="oo-name">${e.name}</div>
           <div class="oo-dates">${fmtRange(e.start,e.end)}</div>
         </div>`).join('');
+      requestAnimationFrame(()=>fitOOOWidget(outToday.length));
     }
-    requestAnimationFrame(()=>requestAnimationFrame(fitOOO));
   }catch(err){
     list.innerHTML=`<div style="color:var(--over);font-size:0.8rem;">OOO feed unavailable</div>`;
-    requestAnimationFrame(()=>requestAnimationFrame(fitOOO));
+    requestAnimationFrame(()=>fitOOOWidget(0));
   }
 }
 fetchOOO(); setInterval(fetchOOO, OOO_FREQ);
@@ -605,11 +604,12 @@ function updateStats(data){
   const inline=data.filter(j=>{const s=pSt(j['Station Order']);return s==='L1'||s==='L2';}).length;
   const unass=data.filter(j=>pSt(j['Station Order'])==='U').length;
   const over=data.filter(j=>j['Due Date']&&(new Date(j['Due Date'])-new Date())<0).length;
-  stat_total.textContent=data.length;
-  stat_running.textContent=running;
-  stat_inline.textContent=inline;
-  stat_unass.textContent=unass;
-  stat_over.textContent=over;
+
+  if(stat_total)   stat_total.textContent=data.length;
+  if(stat_running) stat_running.textContent=running;
+  if(stat_inline)  stat_inline.textContent=inline;
+  if(stat_unass)   stat_unass.textContent=unass;
+  if(stat_over)    stat_over.textContent=over;
 }
 async function loadData(){
   try{
