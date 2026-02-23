@@ -184,11 +184,40 @@ td{padding:0.55rem 0.65rem;white-space:nowrap;overflow:hidden;text-overflow:elli
 .wx-stat+.wx-stat{border-left:1px solid var(--border);}
 .wx-stat-val{font-size:0.88rem;font-weight:700;color:var(--text2);}
 .wx-stat-lbl{font-size:0.58rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;}
-.oo-list{display:flex;flex-direction:column;gap:8px;min-height:0;overflow:auto;padding-right:2px;}
-.oo-item{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:10px 12px;
-  display:flex;justify-content:space-between;align-items:center;gap:10px;}
-.oo-name{font-weight:800;letter-spacing:0.06em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.oo-dates{color:var(--muted);font-size:0.75rem;white-space:nowrap;}
+
+/* --- Out of Office widget: auto-fit content (no scrolling; progressively tightens spacing if needed) --- */
+.oo-list{
+  display:flex;
+  flex-direction:column;
+  gap:var(--oo-gap, 8px);
+  min-height:0;
+  overflow:hidden;
+  padding-right:2px;
+}
+.oo-item{
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.07);
+  border-radius:10px;
+  padding:var(--oo-item-pad, 10px) var(--oo-item-pad-x, 12px);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+}
+.oo-name{
+  font-weight:800;
+  letter-spacing:0.06em;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  font-size:var(--oo-name-size, 0.92rem);
+}
+.oo-dates{
+  color:var(--muted);
+  white-space:nowrap;
+  font-size:var(--oo-dates-size, 0.75rem);
+}
+
 .bottom-clock{position:fixed;bottom:0;left:0;right:0;z-index:50;height:var(--bot-h);background:rgba(8,12,10,0.95);
   border-top:1px solid var(--greenBorder);display:flex;align-items:center;justify-content:center;gap:1.2rem;backdrop-filter:blur(8px);}
 .clock{font-family:'JetBrains Mono',monospace;font-size:1.2rem;font-weight:600;color:var(--green3);letter-spacing:0.08em;
@@ -422,11 +451,39 @@ function fmtRange(startYMD,endYMD){
   const fmt=(d)=> (d.getMonth()+1)+'/'+d.getDate()+'/'+String(d.getFullYear()).slice(2);
   return `${fmt(s)} → ${fmt(e)}`;
 }
+
+/* Auto-fit logic: tightens OOO spacing/font until everything fits without scrolling */
+function fitOOO(){
+  const list=document.getElementById('ooList');
+  if(!list) return;
+  const widget = list.closest('.widget') || document.documentElement;
+
+  const presets=[
+    {gap:8,padY:10,padX:12,name:0.92,dates:0.75},
+    {gap:6,padY:9 ,padX:11,name:0.90,dates:0.72},
+    {gap:5,padY:8 ,padX:10,name:0.88,dates:0.70},
+    {gap:4,padY:7 ,padX:9 ,name:0.86,dates:0.68},
+    {gap:3,padY:6 ,padX:8 ,name:0.84,dates:0.66}
+  ];
+
+  for(const p of presets){
+    widget.style.setProperty('--oo-gap', p.gap+'px');
+    widget.style.setProperty('--oo-item-pad', p.padY+'px');
+    widget.style.setProperty('--oo-item-pad-x', p.padX+'px');
+    widget.style.setProperty('--oo-name-size', p.name+'rem');
+    widget.style.setProperty('--oo-dates-size', p.dates+'rem');
+
+    // Force reflow check
+    if(list.scrollHeight <= list.clientHeight + 1) break;
+  }
+}
+
 async function fetchOOO(){
   const list=document.getElementById('ooList');
   try{
     if(!OOO_URL || OOO_URL.includes('PASTE_YOUR_VACATION_JSON_RAW_URL_HERE')){
       list.innerHTML=`<div style="color:var(--muted);font-size:0.8rem;letter-spacing:.06em;">Set <b>OOO_URL</b> in the script to your GitHub raw JSON link.</div>`;
+      requestAnimationFrame(()=>requestAnimationFrame(fitOOO));
       return;
     }
     const res=await fetch(OOO_URL+'?t='+Date.now());
@@ -448,8 +505,10 @@ async function fetchOOO(){
           <div class="oo-dates">${fmtRange(e.start,e.end)}</div>
         </div>`).join('');
     }
+    requestAnimationFrame(()=>requestAnimationFrame(fitOOO));
   }catch(err){
     list.innerHTML=`<div style="color:var(--over);font-size:0.8rem;">OOO feed unavailable</div>`;
+    requestAnimationFrame(()=>requestAnimationFrame(fitOOO));
   }
 }
 fetchOOO(); setInterval(fetchOOO, OOO_FREQ);
