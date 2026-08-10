@@ -520,15 +520,35 @@ function chip(st){
   if(st==='L2') return `<span class="chip chip-l2"><span class="chip-dot"></span>In Line 2</span>`;
   return `<span class="chip chip-un">Unassigned</span>`;
 }
+function normalizeWorkstations(ws){
+  if(Array.isArray(ws)) return ws.map(v=>String(v||'').trim()).filter(Boolean);
+  if(ws==null || ws==='') return [];
+  if(typeof ws==='string'){
+    const s=ws.trim();
+    if(s.startsWith('[')){
+      try{
+        const parsed=JSON.parse(s);
+        if(Array.isArray(parsed)) return parsed.map(v=>String(v||'').trim()).filter(Boolean);
+      }catch(e){}
+    }
+    return [s];
+  }
+  return [String(ws).trim()].filter(Boolean);
+}
+function workstationText(ws){
+  const list=normalizeWorkstations(ws);
+  return list.length ? list.join(', ') : 'UNASSIGNED';
+}
 function wsCls(ws){
-  if(!ws) return 'ws-unassigned';
-  const u=ws.trim().toUpperCase();
-  if(u.includes('MULTICAM')||u.includes('MCAM')) return 'ws-mcam';
-  if(u==='SAW') return 'ws-saw';
-  if(u.includes('MARIO')) return 'ws-mario';
-  if(u==='FAB') return 'ws-fab';
-  if(u.includes('OWEN')) return 'ws-owen';
-  if(u==='UNASSIGNED') return 'ws-unassigned';
+  const list=normalizeWorkstations(ws);
+  if(!list.length) return 'ws-unassigned';
+  const u=list.map(x=>x.toUpperCase());
+  if(u.some(x=>x.includes('MULTICAM')||x.includes('MCAM'))) return 'ws-mcam';
+  if(u.some(x=>x==='SAW')) return 'ws-saw';
+  if(u.some(x=>x.includes('MARIO'))) return 'ws-mario';
+  if(u.some(x=>x==='FAB')) return 'ws-fab';
+  if(u.some(x=>x.includes('OWEN'))) return 'ws-owen';
+  if(u.every(x=>x==='UNASSIGNED')) return 'ws-unassigned';
   return '';
 }
 function rowCls(st,ds,ws){
@@ -556,14 +576,17 @@ function sortJobs(arr){
   });
 }
 function buildRow(j){
-  const st=pSt(j['Station Order']); const ws=j['Workstation']||''; const isRun=st==='R';
+  const st=pSt(j['Station Order']);
+  const ws=j['Workstation'];
+  const wsText=workstationText(ws);
+  const isRun=st==='R';
   const playCell=isRun?`<td class="td-play"><span class="play-icon">▶</span></td>`:`<td class="td-play"></td>`;
   return `<tr class="${rowCls(st,j['Due Date'],ws)}">
     ${playCell}
     <td class="td-so">${j['SO Number']||'—'}</td>
     <td class="td-cust">${(j['Customer']||'—').substring(0,17)}</td>
     <td>${chip(st)}</td>
-    <td class="td-ws">${ws.substring(0,14)||'—'}</td>
+    <td class="td-ws" title="${wsText.replace(/"/g,'&quot;')}">${wsText}</td>
     <td class="td-due ${dueCls(j['Due Date'])}">${fmtDate(j['Due Date'])}</td>
   </tr>`;
 }
