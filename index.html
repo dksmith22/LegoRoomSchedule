@@ -127,7 +127,7 @@ tr.section-divider td{padding:0.3rem 0.65rem;font-size:0.6rem;font-weight:700;le
 td{padding:0.55rem 0.65rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;vertical-align:middle;}
 .td-so{font-family:'JetBrains Mono',monospace;font-size:0.82rem;font-weight:600;color:var(--text);}
 .td-cust{font-size:0.82rem;font-weight:600;color:var(--text2);}
-.td-ws{font-size:0.76rem;color:var(--muted);font-weight:500;}
+.td-ws{font-size:0.76rem;color:var(--muted);font-weight:500;white-space:normal;line-height:1.2;}
 .td-due{font-size:0.82rem;font-weight:700;text-align:right;}
 .due-ok{color:var(--muted);} .due-soon{color:var(--run);} .due-over{color:var(--over);}
 .chip{display:inline-flex;align-items:center;gap:0.28rem;font-size:0.66rem;font-weight:700;letter-spacing:0.05em;padding:0.22rem 0.6rem;
@@ -537,7 +537,7 @@ function normalizeWorkstations(ws){
 }
 function workstationText(ws){
   const list=normalizeWorkstations(ws);
-  return list.length ? list.join(', ') : 'UNASSIGNED';
+  return list.length ? list.join('<br>') : 'UNASSIGNED';
 }
 function wsCls(ws){
   const list=normalizeWorkstations(ws);
@@ -586,7 +586,7 @@ function buildRow(j){
     <td class="td-so">${j['SO Number']||'—'}</td>
     <td class="td-cust">${(j['Customer']||'—').substring(0,17)}</td>
     <td>${chip(st)}</td>
-    <td class="td-ws" title="${wsText.replace(/"/g,'&quot;')}">${wsText}</td>
+    <td class="td-ws" title="${normalizeWorkstations(ws).join(' / ').replace(/"/g,'&quot;')}">${wsText}</td>
     <td class="td-due ${dueCls(j['Due Date'])}">${fmtDate(j['Due Date'])}</td>
   </tr>`;
 }
