@@ -634,14 +634,25 @@ function updateStats(data){
   if(stat_unass)   stat_unass.textContent=unass;
   if(stat_over)    stat_over.textContent=over;
 }
+function isShippingWorkstation(row){
+  return normalizeWorkstations(row?.['Workstation'])
+    .map(ws => String(ws || '').trim().toUpperCase())
+    .includes('SHIPPING');
+}
+
 async function loadData(){
   try{
     const data=await (await fetch(DATA_URL+'?t='+Date.now())).json();
-    const {ts,lp,pv}=splitCols(data);
+
+    // SHIPPING jobs belong on the dedicated Shipping Schedule,
+    // so remove them from the Overall Production Schedule.
+    const productionData=(Array.isArray(data)?data:[]).filter(row => !isShippingWorkstation(row));
+
+    const {ts,lp,pv}=splitCols(productionData);
     renderTable('ts-tbody','ts-total','ts-run',ts);
     renderTable('lp-tbody','lp-total','lp-run',lp);
     renderTable('pv-tbody','pv-total','pv-run',pv);
-    updateStats(data);
+    updateStats(productionData);
     lastUpd.textContent='Refreshed '+new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
   }catch(e){ console.error('Data load error:',e); }
 }
